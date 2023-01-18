@@ -2,7 +2,7 @@
 # include <Siv3D.hpp> // OpenSiv3D v0.6.3
 # include "Box.h"
 
-double JumpY(double velocity, double sec);
+double JumpY(double velocity,double sec);
 
 double bottomO = 400.0;//修正がしやすいように障害物のy座標
 double bottomE = 485.0;//敵のy座標
@@ -50,6 +50,10 @@ void Main()
 			}
 			if (move2 <= -1600) {
 				move2 = 800.0;
+			}
+			if (move3 <= -1600) {
+				move3 = 800.0;
+				period += 1;
 			}
 			if (move3 <= -1600) {
 				move3 = 800.0;
@@ -188,6 +192,15 @@ void Main()
 			explosion.draw(player.x - 400, player.y - 300, ColorF{ 1.0, Periodic::Sine0_1(5s) });
 		}
 	}
+}
+
+
+
+double JumpY(double velocity, double sec) {
+
+	double gravity = 9.8f * 2;
+
+	return velocity * sec + 0.5f * gravity * Square(sec);
 }
 
 
