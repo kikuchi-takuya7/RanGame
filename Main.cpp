@@ -2,7 +2,7 @@
 # include <Siv3D.hpp> // OpenSiv3D v0.6.3
 # include "Box.h"
 
-double JumpY(double velocity,double sec);
+//double JumpY(double velocity,Vec2 pos);
 
 double bottomO = 400.0;//修正がしやすいように障害物のy座標
 double bottomE = 485.0;//敵のy座標
@@ -22,13 +22,16 @@ void Main()
 	int die = 0;//死亡時に画面を止める変数
 	double tMove = 0.0;//時間を獲得する変数　(Scene::DeltaTime() * 180);
 	double limit = 30.0;
-	const double velocity = -10.0f;//ジャンプの初速
-	double angle = ToRadians(30);
-	double jumpS = velocity * sin(angle);
-	double time = 0.0;
+	double velocity = 0;//ジャンプの初速
+	double gravity = 0;
+	/*double angle = ToRadians(30);
+	double jumpS = velocity * sin(angle);*/
 	int pattern[2]; //オブジェクトの配置パターン
 	int period = 0; //パターンの周期
-	int jumptmp = 0;
+
+	//Vec2 ballVelocity{ 0,0 };
+	////ボールの大きさ
+	//Circle ball{ 400, 400, 8 };
 
 	for (int i = 0; i < 2; i++) {
 		pattern[i] = rand() % 2;
@@ -80,7 +83,7 @@ void Main()
 
 		//最初の足場
 		start -= tMove;
-		RectF scaffold{ move, 500, 800, 10 };
+		RectF scaffold{ move, 500, 1600, 10 };
 		scaffold.draw(Palette::Black);
 
 		//画面恥の表示
@@ -95,17 +98,19 @@ void Main()
 
 
 		//ジャンプ
-		if (KeySpace.down() || jumptmp == 1) {
-			jumptmp = 1;
+		if (KeySpace.down()) {
+			velocity = -1.0f;
+			gravity = 2.0f;
+		}
 
-			time += Scene::DeltaTime();
-			playerPos.y = playerPos.y + JumpY(velocity, time);
+		gravity = 2.0f;
+		playerPos.y -= velocity;
+		playerPos.y += gravity;
 
 			if (playerPos.y >= 480) {
-				jumptmp = 0;
-				time = 0;
+				playerPos.y = 480;
+				velocity = 0;
 			}
-		}
 
 		//敵の表示
 
@@ -168,9 +173,9 @@ void Main()
 			}
 
 			//オブジェクトに当たったら、押し戻される
-			if (object.intersects(player)) {
+			/*if (object.intersects(player)) {
 				playerPos.x = playerPos.x - tMove;
-			}
+			}*/
 
 			break;
 		}
@@ -192,15 +197,6 @@ void Main()
 			explosion.draw(player.x - 400, player.y - 300, ColorF{ 1.0, Periodic::Sine0_1(5s) });
 		}
 	}
-}
-
-
-
-double JumpY(double velocity, double sec) {
-
-	double gravity = 9.8f * 2;
-
-	return velocity * sec + 0.5f * gravity * Square(sec);
 }
 
 
