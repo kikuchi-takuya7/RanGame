@@ -99,13 +99,13 @@ void Main()
 
 		//ジャンプ
 		if (KeySpace.down()) {
-			velocity = -1.0f;
+			velocity = 9.0f;
 			gravity = 2.0f;
 		}
 
-		gravity = 2.0f;
 		playerPos.y -= velocity;
 		playerPos.y += gravity;
+		gravity += 0.1f;
 
 			if (playerPos.y >= 480) {
 				playerPos.y = 480;
