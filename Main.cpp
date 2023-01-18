@@ -219,9 +219,104 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	if (enemyS.intersects(_player)) {
 		_die += 1;
 	}
+	if (enemyS.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemyS2.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy3.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy4.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy5.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy6.intersects(_player)) {
+		_die += 1;
+	}
 
-	//オブジェクトに当たったら、押し戻される
+	/*オブジェクトに当たったら、押し戻される*/
 	if (object.intersects(_player)) {
 		playerPos.x = playerPos.x - _tMove;
 	}
-}
+	if (objectsub.intersects(_player)) {
+		if (playerPos.y >= 379) {
+			playerPos.y = 379;
+			velocity = 0;
+			gravity = 0;
+		}
+
+		//オブジェクトに当たったら、押し戻される
+		if (object.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		/*オブジェクトに当たったら、押し戻される*/
+
+		if (object2.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object2sub.intersects(_player)) {
+			if (playerPos.y >= 379) {
+				playerPos.y = 379;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object3.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object3sub.intersects(_player)) {
+			if (playerPos.y >= 329) {
+				playerPos.y = 329;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object5.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object5sub.intersects(_player)) {
+			if (playerPos.y >= 229) {
+				playerPos.y = 229;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object6.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object6sub.intersects(_player)) {
+			if (playerPos.y >= 129) {
+				playerPos.y = 129;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object9.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object9sub.intersects(_player)) {
+			if (playerPos.y >= 380) {
+				playerPos.y = 380;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object10.intersects(_player)) {
+
+			playerPos.y = 480;
+			velocity = 0;
+			gravity = 0;
+
+		}
+	}
+
+	}
