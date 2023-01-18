@@ -316,6 +316,7 @@
   <ItemGroup>
     <ClInclude Include="Box.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="main.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App\example\obj\blacksmith.obj">
