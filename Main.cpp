@@ -205,9 +205,4 @@ double JumpY(double velocity, double sec) {
 
 
 
-double JumpY(double velocity, double sec) {
 
-	double gravity = 9.8f * 2;
-
-	return velocity * sec + 0.5f * gravity * Square(sec);
-}
