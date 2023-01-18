@@ -1,7 +1,8 @@
-﻿# include <Siv3D.hpp> // OpenSiv3D v0.6.3
+﻿
+# include <Siv3D.hpp> // OpenSiv3D v0.6.3
 # include "Box.h"
 
-double JumpY(double velocity,double sec);
+double JumpY(double velocity, double sec);
 
 double bottomO = 400.0;//修正がしやすいように障害物のy座標
 double bottomE = 485.0;//敵のy座標
@@ -64,7 +65,7 @@ void Main()
 			limit = 30 - Scene::Time();
 			Print << limit;
 		}
-		else if(die != 0) {
+		else if (die != 0) {
 			Print << limit;
 		}
 
@@ -114,7 +115,7 @@ void Main()
 			Triangle enemyS{ move2 + 300, bottomE - 300, scaleE };
 			enemyS.draw(Palette::Red);
 			skymob.scaled(0.2).drawAt(move2 + 300, bottomE - 300);
-			
+
 			Triangle enemyS2{ move2 + 300, bottomE - 200, scaleE };
 			enemyS2.draw(Palette::Red);
 
@@ -169,10 +170,10 @@ void Main()
 
 			break;
 		}
-		
-		
 
-		
+
+
+
 
 		//押し戻されて画面恥に言ったら画面が止まる
 		if (playerPos.x <= 20) {
