@@ -219,123 +219,104 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	if (enemyS.intersects(_player)) {
 		_die += 1;
 	}
-			if (enemyS.intersects(player)) {
-				die += 1;
-			}
-			if (enemyS2.intersects(player)) {
-				die += 1;
-			}
-			if (enemy3.intersects(player)) {
-				die += 1;
-			}
-			if (enemy4.intersects(player)) {
-				die += 1;
-			}
-			if (enemy5.intersects(player)) {
-				die += 1;
-			}
-			if (enemy6.intersects(player)) {
-				die += 1;
-			}
-			
-			/*オブジェクトに当たったら、押し戻される*/
-			if (object.intersects(player)) {
-				playerPos.x = playerPos.x - tMove;
-			}
-			if (objectsub.intersects(player)) {
-				if (playerPos.y >= 379) {
-					playerPos.y = 379;
-					velocity = 0;
-					gravity = 0;
-				}
+	if (enemyS.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemyS2.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy3.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy4.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy5.intersects(_player)) {
+		_die += 1;
+	}
+	if (enemy6.intersects(_player)) {
+		_die += 1;
+	}
 
-	//オブジェクトに当たったら、押し戻される
+	/*オブジェクトに当たったら、押し戻される*/
 	if (object.intersects(_player)) {
 		playerPos.x = playerPos.x - _tMove;
-			}
-			/*オブジェクトに当たったら、押し戻される*/
+	}
+	if (objectsub.intersects(_player)) {
+		if (playerPos.y >= 379) {
+			playerPos.y = 379;
+			velocity = 0;
+			gravity = 0;
+		}
 
-			if (object2.intersects(player)) {
-				playerPos.x = playerPos.x - tMove;
-			}
-			if (object2sub.intersects(player)) {
-				if (playerPos.y >= 379) {
-					playerPos.y = 379;
-					velocity = 0;
-					gravity = 0;
-				}
+		//オブジェクトに当たったら、押し戻される
+		if (object.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		/*オブジェクトに当たったら、押し戻される*/
 
-			}
-			if (object3.intersects(player)) {
-				playerPos.x = playerPos.x - tMove;
-			}
-			if (object3sub.intersects(player)) {
-				if (playerPos.y >= 329) {
-					playerPos.y = 329;
-					velocity = 0;
-					gravity = 0;
-				}
-
-			}
-			if (object5.intersects(player)) {
-				playerPos.x = playerPos.x - tMove;
-			}
-			if (object5sub.intersects(player)) {
-				if (playerPos.y >= 229) {
-					playerPos.y = 229;
-					velocity = 0;
-					gravity = 0;
-				}
-
-			}
-			if (object6.intersects(player)) {
-				playerPos.x = playerPos.x - tMove;
-			}
-			if (object6sub.intersects(player)) {
-				if (playerPos.y >= 129) {
-					playerPos.y = 129;
-					velocity = 0;
-					gravity = 0;
-				}
-
-			}
-			if (object9.intersects(player)) {
-				playerPos.x = playerPos.x - tMove;
-			}
-			if (object9sub.intersects(player)) {
-				if (playerPos.y >= 380) {
-					playerPos.y = 380;
-					velocity = 0;
-					gravity = 0;
-				}
-
-			}
-			if (object10.intersects(player)) {
-
-				playerPos.y = 480;
+		if (object2.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object2sub.intersects(_player)) {
+			if (playerPos.y >= 379) {
+				playerPos.y = 379;
 				velocity = 0;
 				gravity = 0;
-
 			}
-			
-			break;
+
 		}
-
-
-
-
-
-		//押し戻されて画面恥に言ったら画面が止まる
-		if (playerPos.x <= 20) {
-			die += 1;
+		if (object3.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
 		}
+		if (object3sub.intersects(_player)) {
+			if (playerPos.y >= 329) {
+				playerPos.y = 329;
+				velocity = 0;
+				gravity = 0;
+			}
 
-		//爆発のエフェクト
-		if (die >= 1 && die <= 120) {
-			explosion.draw(player.x - 400, player.y - 300);
 		}
-		else if (die >= 120 && die <= 300) {
-			explosion.draw(player.x - 400, player.y - 300, ColorF{ 1.0, Periodic::Sine0_1(5s) });
+		if (object5.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object5sub.intersects(_player)) {
+			if (playerPos.y >= 229) {
+				playerPos.y = 229;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object6.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object6sub.intersects(_player)) {
+			if (playerPos.y >= 129) {
+				playerPos.y = 129;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object9.intersects(_player)) {
+			playerPos.x = playerPos.x - _tMove;
+		}
+		if (object9sub.intersects(_player)) {
+			if (playerPos.y >= 380) {
+				playerPos.y = 380;
+				velocity = 0;
+				gravity = 0;
+			}
+
+		}
+		if (object10.intersects(_player)) {
+
+			playerPos.y = 480;
+			velocity = 0;
+			gravity = 0;
+
 		}
 	}
-}
+
+	}
