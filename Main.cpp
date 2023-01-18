@@ -1,13 +1,17 @@
 ﻿
 # include <Siv3D.hpp> // OpenSiv3D v0.6.3
-# include "Box.h"
 # include "main.h"
 
 
 Vec2 playerPos = { 100, 480 };//プレイヤーの位置
 
-void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player, int _die,
-				double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob, double _velocity, double _gravity);
+//オブジェの上に乗ったときに重力などをなくす関数
+void Reset(double& _velocity, double& _gravity, int& _jummptmp, int& _jumpcount);
+
+//敵が出てくるパターん
+void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player, int _die,
+				double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob,
+				double &_velocity, double &_gravity, int &_jummptmp, int &_jumpcount);
 
 void Main()
 {
@@ -29,15 +33,15 @@ void Main()
 	double limit = 30.0;
 	double velocity = 0;//ジャンプの初速
 	double gravity = 0;//重力
-	int pattern[2]; //オブジェクトの配置パターン
+	int pattern[2] = {1,1}; //オブジェクトの配置パターン
 	int period = 0; //パターンの周期
 	int jumpcount = 0;//ジャンプ回数
-	//int jumptmp = 0;//空中ではジャンプが一回しか出ないように
+	int jumptmp = 0;//
 
 
-	for (int i = 0; i < 2; i++) {
+	/*for (int i = 0; i < 2; i++) {
 		pattern[i] = rand() % 2;
-	}
+	}*/
 
 	while (System::Update())
 	{
@@ -107,19 +111,21 @@ void Main()
 		
 		Print << score;
 
-		//空中ジャンプは一回
-
-
 		//ジャンプ
 		if (KeySpace.down() && jumpcount <= 1) {
 			velocity = 8.0f; //ジャンプの初速
 			gravity = 2.0f; //重力
 			jumpcount += 1;
+			jumptmp = 1;
 		}
 
-		playerPos.y -= velocity;
-		playerPos.y += gravity;
-		gravity += 0.1f;
+		if (jumptmp == 1) {
+			playerPos.y -= velocity;
+			playerPos.y += gravity;
+			gravity += 0.1f;
+		}
+
+		
 
 		//急降下
 		if (KeyDown.down() && velocity != 0) {
@@ -127,9 +133,8 @@ void Main()
 		}
 
 		if (playerPos.y >= 480) {
-				playerPos.y = 480;
-				velocity = 0;
-				jumpcount = 0;
+			playerPos.y = 480;
+			Reset(velocity, gravity, jumptmp, jumpcount);
 		}
 
 		//敵の表示
@@ -138,7 +143,8 @@ void Main()
 		{
 		case 1:
 
-			pattern1(move2, move3, bottomO, bottomE, scaleE, player3, die, tMove, /*playerPos,*/ mob, skymob, velocity, gravity);
+			Pattern1(move2, move3, bottomO, bottomE, scaleE, player3, die, tMove,
+						/*playerPos,*/ mob, skymob, velocity, gravity, jumptmp, jumpcount);
 
 			break;
 		}
@@ -163,15 +169,19 @@ void Main()
 }
 
 
-void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player,
-				int _die, double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob, double _velocity, double _gravity)
+void Reset(double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount) {
+
+	_velocity = 0;
+	_gravity = 0;
+	_jumptmp = 0;
+	_jumpcount = 0;
+}
+
+
+void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player,
+				int _die, double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob,
+				double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount)
 {
-
-	RectF object{ _move2, _bottomO, 10, 100 };
-	object.draw(Palette::Black);
-
-	RectF objectsub{ _move2 + 1, _bottomO, 101, 100 };
-	objectsub.draw(Palette::Black);
 
 	Triangle enemyS{ _move2 + 300, _bottomE - 300, _scaleE };
 	enemyS.draw(Palette::Red);
@@ -187,18 +197,24 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	Triangle enemy4{ _move2 + 600, _bottomE, _scaleE };
 	enemy4.draw(Palette::Red);
 
+	RectF object{ _move2, _bottomO, 10, 100 };
+	object.draw(Palette::Black);
+
+	RectF objectsub{ _move2 + 10, _bottomO, 90, 100 };
+	objectsub.draw(Palette::Orange);
+
 	RectF object2{ _move2 + 650, _bottomO, 10, 100 };
 	object2.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object2sub{ _move2 + 652, _bottomO, 101, 100 };
-	object2sub.draw(Palette::Black);
+	RectF object2sub{ _move2 + 660, _bottomO, 90, 100 };
+	object2sub.draw(Palette::Orange);
 
-	RectF object3{ _move3 + 100, _bottomO - 50, 10, 100 };
+	RectF object3{ _move3 + 100, _bottomO - 50, 10, 110 };
 	object3.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object3sub{ _move3 + 105, _bottomO - 50, 101, 100 };
+	RectF object3sub{ _move3 + 110, _bottomO - 50, 90, 100 };
 	object3sub.draw(Palette::Black);
 
 	RectF object4{ _move3 + 200, _bottomO - 50, 100, 100 };
@@ -208,14 +224,14 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object5.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object5sub{ _move3 + 201, _bottomO - 150, 101, 100 };
+	RectF object5sub{ _move3 + 210, _bottomO - 150, 90, 100 };
 	object5sub.draw(Palette::Black);
 
 	RectF object6{ _move3 + 300, _bottomO - 250, 10, 100 };
 	object6.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object6sub{ _move3 + 305, _bottomO - 250, 100, 100 };
+	RectF object6sub{ _move3 + 310, _bottomO - 250, 90, 100 };
 	object6sub.draw(Palette::Black);
 
 	RectF object7{ _move3 + 300, _bottomO - 150, 100, 100 };
@@ -234,17 +250,14 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object9.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object9sub{ _move3 + 705, _bottomO, 100, 100 };
+	RectF object9sub{ _move3 + 710, _bottomO, 90, 100 };
 	object9sub.draw(Palette::Black);
 
-	RectF object10{ _move3 + 100, _bottomO - 40, 305, 100 };
+	RectF object10{ _move3 + 110, _bottomO - 40, 290, 100 };
 	object10.draw(Palette::Black);
 
 	//当たり判定
 	//敵に当たったら、画面が止まる
-	if (enemyS.intersects(_player)) {
-		_die += 1;
-	}
 	if (enemyS.intersects(_player)) {
 		_die += 1;
 	}
@@ -269,80 +282,64 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		playerPos.x = playerPos.x - _tMove;
 	}
 	if (objectsub.intersects(_player)) {
-		if (playerPos.y >= 379) {
-			playerPos.y = 379;
-			_velocity = 0;
-			_gravity = 0;
-		}
-
-		//オブジェクトに当たったら、押し戻される
-		if (object.intersects(_player)) {
-			playerPos.x = playerPos.x - _tMove;
-		}
-		/*オブジェクトに当たったら、押し戻される*/
-
-		if (object2.intersects(_player)) {
-			playerPos.x = playerPos.x - _tMove;
-		}
-		if (object2sub.intersects(_player)) {
-			if (playerPos.y >= 379) {
-				playerPos.y = 379;
-				_velocity = 0;
-				_gravity = 0;
-			}
-
-		}
-		if (object3.intersects(_player)) {
-			playerPos.x = playerPos.x - _tMove;
-		}
-		if (object3sub.intersects(_player)) {
-			if (playerPos.y >= 329) {
-				playerPos.y = 329;
-				_velocity = 0;
-				_gravity = 0;
-			}
-
-		}
-		if (object5.intersects(_player)) {
-			playerPos.x = playerPos.x - _tMove;
-		}
-		if (object5sub.intersects(_player)) {
-			if (playerPos.y >= 229) {
-				playerPos.y = 229;
-				_velocity = 0;
-				_gravity = 0;
-			}
-
-		}
-		if (object6.intersects(_player)) {
-			playerPos.x = playerPos.x - _tMove;
-		}
-		if (object6sub.intersects(_player)) {
-			if (playerPos.y >= 129) {
-				playerPos.y = 129;
-				_velocity = 0;
-				_gravity = 0;
-			}
-
-		}
-		if (object9.intersects(_player)) {
-			playerPos.x = playerPos.x - _tMove;
-		}
-		if (object9sub.intersects(_player)) {
-			if (playerPos.y >= 380) {
-				playerPos.y = 380;
-				_velocity = 0;
-				_gravity = 0;
-			}
-
-		}
-		if (object10.intersects(_player)) {
-
+		playerPos.y = 380;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (playerPos.x >= objectsub.x + 90){
+		_jumptmp = 1;
+	}
+	if (object2.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	} 
+	if (object2sub.intersects(_player)) {
+		playerPos.y = 380;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (playerPos.x >= object2sub.x + 90) {
+		_jumptmp = 1;
+	}
+	if (object3.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}
+	if (object3sub.intersects(_player)) {
+		playerPos.y = 330;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (playerPos.x >= object3sub.x + 90) {
+		_jumptmp = 1;
+	}
+	if (object5.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}
+	if (object5sub.intersects(_player)) {
+		playerPos.y = 230;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (playerPos.x >= object5sub.x + 90) {
+		_jumptmp = 1;
+	}
+	if (object6.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}
+	if (object6sub.intersects(_player)) {
+		playerPos.y = 130;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (playerPos.x >= object6sub.x + 90) {
+		_jumptmp = 1;
+	}
+	if (object9.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}
+	if (object9sub.intersects(_player)) {
+		playerPos.y = 380;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (playerPos.x >= object9sub.x + 90) {
+		_jumptmp = 1;
+	}
+	if (object10.intersects(_player)) {
 			playerPos.y = 480;
-			_velocity = 0;
-			_gravity = 0;
-
-		}
+			Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
-
-	}
+}
