@@ -93,11 +93,12 @@ void Main()
 		if (die == 0) {
 			player.draw(Palette::Black);
 		}
+		
 
 
 		//ジャンプ
 		if (KeySpace.down()) {
-			velocity = 9.0f;
+			velocity = 8.0f;
 			gravity = 2.0f;
 		}
 
@@ -115,9 +116,15 @@ void Main()
 		switch (pattern[period])
 		{
 		case 1:
-
-			RectF object{ move2, bottomO, 100, 100 };
+			
+			RectF object10{ move3 + 100, bottomO - 40, 305, 100 };
+			object10.draw(Palette::Black);
+			//横の壁のオブジェクト
+			RectF object{ move2, bottomO, 10, 100 };
 			object.draw(Palette::Black);
+			//上の壁のオブジェクト
+			RectF objectsub{ move2+1, bottomO, 101, 100 };
+			objectsub.draw(Palette::Black);
 
 			Triangle enemyS{ move2 + 300, bottomE - 300, scaleE };
 			enemyS.draw(Palette::Red);
@@ -132,26 +139,38 @@ void Main()
 
 			Triangle enemy4{ move2 + 600, bottomE, scaleE };
 			enemy4.draw(Palette::Red);
-
-			RectF object2{ move2 + 650, bottomO, 100, 100 };
+			//横の壁のオブジェクト
+			RectF object2{ move2 + 650, bottomO, 10, 100 };
 			object2.draw(Palette::Black);
-
-			RectF object3{ move3 + 100, bottomO - 50, 100, 100 };
-			object3.draw(Palette::Black);
+			//上の壁のオブジェクト
+			RectF object2sub{ move2 +652, bottomO, 101, 100 };
+			object2sub.draw(Palette::Black);
+			//横の壁のオブジェクト
+			RectF object3{ move3 + 100, bottomO - 50, 10, 100 };
+			  object3.draw(Palette::Black);//当たり判定必要
+			  //上の壁のオブジェクト
+			RectF object3sub{ move3 + 105, bottomO - 50, 101, 100 };
+			object3sub.draw(Palette::Black);
 
 			RectF object4{ move3 + 200, bottomO - 50, 100, 100 };
 			object4.draw(Palette::Black);
+			//横の壁のオブジェクト
+			RectF object5{ move3 + 200, bottomO - 150, 10, 100 };
+			object5.draw(Palette::Black);//当たり判定必要
+			//上の壁のオブジェクト
+			RectF object5sub{ move3 + 201, bottomO - 150, 101, 100 };
+			object5sub.draw(Palette::Black);
+			//横の壁のオブジェクト
+			RectF object6{ move3 + 300, bottomO - 250, 10, 100 };
+			object6.draw(Palette::Black);//当たり判定必要
+			//上の壁のオブジェクト
+			RectF object6sub{ move3 + 305, bottomO - 250, 100, 100 };
+			object6sub.draw(Palette::Black);
 
-			RectF object5{ move3 + 200, bottomO - 150, 100, 100 };
-			object5.draw(Palette::Black);
-
-			RectF object6{ move3 + 300, bottomO - 250, 100, 100 };
-			object6.draw(Palette::Black);
-
-			RectF object7{ move3 + 300, bottomO - 150, 100, 100 };
+			RectF object7{ move3 + 300, bottomO - 150, 105, 100 };
 			object7.draw(Palette::Black);
 
-			RectF object8{ move3 + 300, bottomO - 50, 100, 100 };
+			RectF object8{ move3 + 300, bottomO - 50, 105, 100 };
 			object8.draw(Palette::Black);
 
 			Triangle enemy5{ move3 + 300, bottomE, scaleE };
@@ -159,22 +178,114 @@ void Main()
 
 			Triangle enemy6{ move3 + 500, bottomE, scaleE };
 			enemy6.draw(Palette::Red);
-
-			RectF object9{ move3 + 700, bottomO, 100, 100 };
+			//横の壁のオブジェクト
+			RectF object9{ move3 + 700, bottomO, 10, 100 };
 			object9.draw(Palette::Black);
+			//上の壁のオブジェクト
+			RectF object9sub{ move3 + 705, bottomO, 100, 100 };
+			object9sub.draw(Palette::Black);
 
+			/*RectF object10{ move3 + 100, bottomO - 40, 305, 100 };
+			object10.draw(Palette::Black);*/
 
 			//当たり判定
 			//敵に当たったら、画面が止まる
 			if (enemyS.intersects(player)) {
 				die += 1;
 			}
-
-			//オブジェクトに当たったら、押し戻される
-			/*if (object.intersects(player)) {
+			if (enemyS2.intersects(player)) {
+				die += 1;
+			}
+			if (enemy3.intersects(player)) {
+				die += 1;
+			}
+			if (enemy4.intersects(player)) {
+				die += 1;
+			}
+			if (enemy5.intersects(player)) {
+				die += 1;
+			}
+			if (enemy6.intersects(player)) {
+				die += 1;
+			}
+			
+			/*オブジェクトに当たったら、押し戻される*/
+			if (object.intersects(player)) {
 				playerPos.x = playerPos.x - tMove;
-			}*/
+			}
+			if (objectsub.intersects(player)) {
+				if (playerPos.y >= 379) {
+					playerPos.y = 379;
+					velocity = 0;
+					gravity = 0;
+				}
 
+			}
+			/*オブジェクトに当たったら、押し戻される*/
+
+			if (object2.intersects(player)) {
+				playerPos.x = playerPos.x - tMove;
+			}
+			if (object2sub.intersects(player)) {
+				if (playerPos.y >= 379) {
+					playerPos.y = 379;
+					velocity = 0;
+					gravity = 0;
+				}
+
+			}
+			if (object3.intersects(player)) {
+				playerPos.x = playerPos.x - tMove;
+			}
+			if (object3sub.intersects(player)) {
+				if (playerPos.y >= 329) {
+					playerPos.y = 329;
+					velocity = 0;
+					gravity = 0;
+				}
+
+			}
+			if (object5.intersects(player)) {
+				playerPos.x = playerPos.x - tMove;
+			}
+			if (object5sub.intersects(player)) {
+				if (playerPos.y >= 229) {
+					playerPos.y = 229;
+					velocity = 0;
+					gravity = 0;
+				}
+
+			}
+			if (object6.intersects(player)) {
+				playerPos.x = playerPos.x - tMove;
+			}
+			if (object6sub.intersects(player)) {
+				if (playerPos.y >= 129) {
+					playerPos.y = 129;
+					velocity = 0;
+					gravity = 0;
+				}
+
+			}
+			if (object9.intersects(player)) {
+				playerPos.x = playerPos.x - tMove;
+			}
+			if (object9sub.intersects(player)) {
+				if (playerPos.y >= 380) {
+					playerPos.y = 380;
+					velocity = 0;
+					gravity = 0;
+				}
+
+			}
+			if (object10.intersects(player)) {
+
+				playerPos.y = 480;
+				velocity = 0;
+				gravity = 0;
+
+			}
+			
 			break;
 		}
 
