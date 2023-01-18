@@ -1,12 +1,13 @@
 ﻿
 # include <Siv3D.hpp> // OpenSiv3D v0.6.3
 # include "Box.h"
+# include "main.h"
 
-//double JumpY(double velocity,Vec2 pos);
 
-double bottomO = 400.0;//修正がしやすいように障害物のy座標
-double bottomE = 485.0;//敵のy座標
-double scaleE = 50;//敵の大きさ
+Vec2 playerPos = { 100, 480 };//プレイヤーの位置
+
+void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player, int _die,
+				double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob);
 
 void Main()
 {
@@ -14,10 +15,14 @@ void Main()
 	const Texture explosion{ U"example/explosion.png" };
 	const Texture mob{ U"example/mob.png" };
 	const Texture skymob{ U"example/skymob.png" };
+	const Font gameclear{ 80 };
 	double move = 0.0;//最初
 	double move2 = 800.0;//
 	double move3 = 1600.0;//障害物が出てくるパターンの場所
-	Vec2 playerPos = { 100, 480 };//プレイヤーの位置
+	int score = 0;
+	double bottomO = 400.0;//修正がしやすいように障害物のy座標
+	double bottomE = 485.0;//敵のy座標
+	double scaleE = 50;//敵の大きさ
 	double start = 0.0;//最初だけの足場
 	int die = 0;//死亡時に画面を止める変数
 	double tMove = 0.0;//時間を獲得する変数　(Scene::DeltaTime() * 180);
@@ -26,10 +31,9 @@ void Main()
 	double gravity = 0;//重力
 	int pattern[2]; //オブジェクトの配置パターン
 	int period = 0; //パターンの周期
+	int jumpcount = 0;//ジャンプ回数
+	//int jumptmp = 0;//空中ではジャンプが一回しか出ないように
 
-	//Vec2 ballVelocity{ 0,0 };
-	////ボールの大きさ
-	//Circle ball{ 400, 400, 8 };
 
 	for (int i = 0; i < 2; i++) {
 		pattern[i] = rand() % 2;
@@ -39,8 +43,14 @@ void Main()
 	{
 		ClearPrint();
 
-		tMove = (Scene::DeltaTime() * 180);
+		if (period == 0) {
+			tMove = (Scene::DeltaTime() * 180);
+		}
+		else if (period == 1) {
+			tMove = (Scene::DeltaTime() * 300);
+		}
 
+		
 		//背景を移動する
 		if (die == 0) {
 			move -= tMove;
@@ -54,11 +64,7 @@ void Main()
 			}
 			if (move3 <= -1600) {
 				move3 = 800.0;
-				period += 1;
-			}
-			if (move3 <= -1600) {
-				move3 = 800.0;
-				period += 1;
+				period += 1;//周期を一回終えて素早さアップしたい
 			}
 		}
 		background.draw(move, 0);
@@ -81,7 +87,7 @@ void Main()
 
 		//最初の足場
 		start -= tMove;
-		RectF scaffold{ move, 500, 1600, 10 };
+		RectF scaffold{ start, 500, 1600, 10 };
 		scaffold.draw(Palette::Black);
 
 		//画面恥の表示
@@ -93,103 +99,126 @@ void Main()
 		if (die == 0) {
 			player.draw(Palette::Black);
 		}
+
+		//スコアの表示
+		if (die == 0 && limit >= 0) {
+			score += tMove;
+		}
 		
+		Print << score;
+
+		//空中ジャンプは一回
 
 
 		//ジャンプ
-		if (KeySpace.down()) {
-			velocity = 8.0f;
-			gravity = 2.0f;
+		if (KeySpace.down() && jumpcount <= 1) {
+			velocity = 8.0f; //ジャンプの初速
+			gravity = 2.0f; //重力
+			jumpcount += 1;
 		}
 
 		playerPos.y -= velocity;
 		playerPos.y += gravity;
 		gravity += 0.1f;
 
-			if (playerPos.y >= 480) {
+		//急降下
+		if (KeyDown.down() && velocity != 0) {
+			gravity += 30.0f;
+		}
+
+		if (playerPos.y >= 480) {
 				playerPos.y = 480;
 				velocity = 0;
-			}
+				jumpcount = 0;
+		}
 
 		//敵の表示
-
+		Vec2 player3{ player.x, player.y };
 		switch (pattern[period])
 		{
 		case 1:
-			
-			RectF object10{ move3 + 100, bottomO - 40, 305, 100 };
-			object10.draw(Palette::Black);
-			//横の壁のオブジェクト
-			RectF object{ move2, bottomO, 10, 100 };
-			object.draw(Palette::Black);
-			//上の壁のオブジェクト
-			RectF objectsub{ move2+1, bottomO, 101, 100 };
-			objectsub.draw(Palette::Black);
 
-			Triangle enemyS{ move2 + 300, bottomE - 300, scaleE };
-			enemyS.draw(Palette::Red);
-			skymob.scaled(0.2).drawAt(move2 + 300, bottomE - 300);
+			pattern1(move2, move3, bottomO, bottomE, scaleE, player3, die, tMove, /*playerPos,*/ mob, skymob);
 
-			Triangle enemyS2{ move2 + 300, bottomE - 200, scaleE };
-			enemyS2.draw(Palette::Red);
+			break;
+		}
 
-			Triangle enemy3{ move2 + 500, bottomE, scaleE };
-			enemy3.draw(Palette::Red);
-			mob.scaled(0.3).drawAt(move2 + 500, bottomE);
 
-			Triangle enemy4{ move2 + 600, bottomE, scaleE };
-			enemy4.draw(Palette::Red);
-			//横の壁のオブジェクト
-			RectF object2{ move2 + 650, bottomO, 10, 100 };
-			object2.draw(Palette::Black);
-			//上の壁のオブジェクト
-			RectF object2sub{ move2 +652, bottomO, 101, 100 };
-			object2sub.draw(Palette::Black);
-			//横の壁のオブジェクト
-			RectF object3{ move3 + 100, bottomO - 50, 10, 100 };
-			  object3.draw(Palette::Black);//当たり判定必要
-			  //上の壁のオブジェクト
-			RectF object3sub{ move3 + 105, bottomO - 50, 101, 100 };
-			object3sub.draw(Palette::Black);
 
-			RectF object4{ move3 + 200, bottomO - 50, 100, 100 };
-			object4.draw(Palette::Black);
-			//横の壁のオブジェクト
-			RectF object5{ move3 + 200, bottomO - 150, 10, 100 };
-			object5.draw(Palette::Black);//当たり判定必要
-			//上の壁のオブジェクト
-			RectF object5sub{ move3 + 201, bottomO - 150, 101, 100 };
-			object5sub.draw(Palette::Black);
-			//横の壁のオブジェクト
-			RectF object6{ move3 + 300, bottomO - 250, 10, 100 };
-			object6.draw(Palette::Black);//当たり判定必要
-			//上の壁のオブジェクト
-			RectF object6sub{ move3 + 305, bottomO - 250, 100, 100 };
-			object6sub.draw(Palette::Black);
+		//押し戻されて画面恥に言ったら画面が止まる
+		if (playerPos.x <= 20) {
+			die += 1;
+		}
 
-			RectF object7{ move3 + 300, bottomO - 150, 105, 100 };
-			object7.draw(Palette::Black);
+		//爆発のエフェクト
+		if (die >= 1 && die <= 120) {
+			explosion.draw(playerPos.x - 400, playerPos.y - 300);
+		}
+		else if (die >= 120 && die <= 300) {
 
-			RectF object8{ move3 + 300, bottomO - 50, 105, 100 };
-			object8.draw(Palette::Black);
+			explosion.draw(playerPos.x - 400, playerPos.y - 300, ColorF{ 1.0, Periodic::Sine0_1(5s) });
+		}
 
-			Triangle enemy5{ move3 + 300, bottomE, scaleE };
-			enemy5.draw(Palette::Red);
+	}
+}
 
-			Triangle enemy6{ move3 + 500, bottomE, scaleE };
-			enemy6.draw(Palette::Red);
-			//横の壁のオブジェクト
-			RectF object9{ move3 + 700, bottomO, 10, 100 };
-			object9.draw(Palette::Black);
-			//上の壁のオブジェクト
-			RectF object9sub{ move3 + 705, bottomO, 100, 100 };
-			object9sub.draw(Palette::Black);
 
-			/*RectF object10{ move3 + 100, bottomO - 40, 305, 100 };
-			object10.draw(Palette::Black);*/
+void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player,
+				int _die, double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob)
+{
 
-			//当たり判定
+	RectF object{ _move2, _bottomO, 100, 100 };
+	object.draw(Palette::Black);
+
+	Triangle enemyS{ _move2 + 300, _bottomE - 300, _scaleE };
+	enemyS.draw(Palette::Red);
+	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 300);
+
+	Triangle enemyS2{ _move2 + 300, _bottomE - 200, _scaleE };
+	enemyS2.draw(Palette::Red);
+
+	Triangle enemy3{ _move2 + 500, _bottomE, _scaleE };
+	enemy3.draw(Palette::Red);
+	_mob.scaled(0.3).drawAt(_move2 + 500, _bottomE);
+
+	Triangle enemy4{ _move2 + 600, _bottomE, _scaleE };
+	enemy4.draw(Palette::Red);
+
+	RectF object2{ _move2 + 650, _bottomO, 100, 100 };
+	object2.draw(Palette::Black);
+
+	RectF object3{ _move3 + 100, _bottomO - 50, 100, 100 };
+	object3.draw(Palette::Black);
+
+	RectF object4{ _move3 + 200, _bottomO - 50, 100, 100 };
+	object4.draw(Palette::Black);
+
+	RectF object5{ _move3 + 200, _bottomO - 150, 100, 100 };
+	object5.draw(Palette::Black);
+
+	RectF object6{ _move3 + 300, _bottomO - 250, 100, 100 };
+	object6.draw(Palette::Black);
+
+	RectF object7{ _move3 + 300, _bottomO - 150, 100, 100 };
+	object7.draw(Palette::Black);
+
+	RectF object8{ _move3 + 300, _bottomO - 50, 100, 100 };
+	object8.draw(Palette::Black);
+
+	Triangle enemy5{ _move3 + 300, _bottomE, _scaleE };
+	enemy5.draw(Palette::Red);
+
+	Triangle enemy6{ _move3 + 500, _bottomE, _scaleE };
+	enemy6.draw(Palette::Red);
+
+	RectF object9{ _move3 + 700, _bottomO, 100, 100 };
+	object9.draw(Palette::Black);
+
+	//当たり判定
 			//敵に当たったら、画面が止まる
+	if (enemyS.intersects(_player)) {
+		_die += 1;
+	}
 			if (enemyS.intersects(player)) {
 				die += 1;
 			}
@@ -220,6 +249,9 @@ void Main()
 					gravity = 0;
 				}
 
+	//オブジェクトに当たったら、押し戻される
+	if (object.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
 			}
 			/*オブジェクトに当たったら、押し戻される*/
 
@@ -307,7 +339,3 @@ void Main()
 		}
 	}
 }
-
-
-
-
