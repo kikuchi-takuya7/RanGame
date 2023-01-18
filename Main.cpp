@@ -7,7 +7,7 @@
 Vec2 playerPos = { 100, 480 };//プレイヤーの位置
 
 void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player, int _die,
-				double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob);
+				double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob, double _velocity, double _gravity);
 
 void Main()
 {
@@ -138,7 +138,7 @@ void Main()
 		{
 		case 1:
 
-			pattern1(move2, move3, bottomO, bottomE, scaleE, player3, die, tMove, /*playerPos,*/ mob, skymob);
+			pattern1(move2, move3, bottomO, bottomE, scaleE, player3, die, tMove, /*playerPos,*/ mob, skymob, velocity, gravity);
 
 			break;
 		}
@@ -164,11 +164,14 @@ void Main()
 
 
 void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player,
-				int _die, double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob)
+				int _die, double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob, double _velocity, double _gravity)
 {
 
-	RectF object{ _move2, _bottomO, 100, 100 };
+	RectF object{ _move2, _bottomO, 10, 100 };
 	object.draw(Palette::Black);
+
+	RectF objectsub{ _move2 + 1, _bottomO, 101, 100 };
+	objectsub.draw(Palette::Black);
 
 	Triangle enemyS{ _move2 + 300, _bottomE - 300, _scaleE };
 	enemyS.draw(Palette::Red);
@@ -184,20 +187,36 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	Triangle enemy4{ _move2 + 600, _bottomE, _scaleE };
 	enemy4.draw(Palette::Red);
 
-	RectF object2{ _move2 + 650, _bottomO, 100, 100 };
+	RectF object2{ _move2 + 650, _bottomO, 10, 100 };
 	object2.draw(Palette::Black);
 
-	RectF object3{ _move3 + 100, _bottomO - 50, 100, 100 };
+	//上の壁のオブジェクト
+	RectF object2sub{ _move2 + 652, _bottomO, 101, 100 };
+	object2sub.draw(Palette::Black);
+
+	RectF object3{ _move3 + 100, _bottomO - 50, 10, 100 };
 	object3.draw(Palette::Black);
+
+	//上の壁のオブジェクト
+	RectF object3sub{ _move3 + 105, _bottomO - 50, 101, 100 };
+	object3sub.draw(Palette::Black);
 
 	RectF object4{ _move3 + 200, _bottomO - 50, 100, 100 };
 	object4.draw(Palette::Black);
 
-	RectF object5{ _move3 + 200, _bottomO - 150, 100, 100 };
+	RectF object5{ _move3 + 200, _bottomO - 150, 10, 100 };
 	object5.draw(Palette::Black);
 
-	RectF object6{ _move3 + 300, _bottomO - 250, 100, 100 };
+	//上の壁のオブジェクト
+	RectF object5sub{ _move3 + 201, _bottomO - 150, 101, 100 };
+	object5sub.draw(Palette::Black);
+
+	RectF object6{ _move3 + 300, _bottomO - 250, 10, 100 };
 	object6.draw(Palette::Black);
+
+	//上の壁のオブジェクト
+	RectF object6sub{ _move3 + 305, _bottomO - 250, 100, 100 };
+	object6sub.draw(Palette::Black);
 
 	RectF object7{ _move3 + 300, _bottomO - 150, 100, 100 };
 	object7.draw(Palette::Black);
@@ -211,8 +230,15 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	Triangle enemy6{ _move3 + 500, _bottomE, _scaleE };
 	enemy6.draw(Palette::Red);
 
-	RectF object9{ _move3 + 700, _bottomO, 100, 100 };
+	RectF object9{ _move3 + 700, _bottomO, 10, 100 };
 	object9.draw(Palette::Black);
+
+	//上の壁のオブジェクト
+	RectF object9sub{ _move3 + 705, _bottomO, 100, 100 };
+	object9sub.draw(Palette::Black);
+
+	RectF object10{ _move3 + 100, _bottomO - 40, 305, 100 };
+	object10.draw(Palette::Black);
 
 	//当たり判定
 	//敵に当たったら、画面が止まる
@@ -245,8 +271,8 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	if (objectsub.intersects(_player)) {
 		if (playerPos.y >= 379) {
 			playerPos.y = 379;
-			velocity = 0;
-			gravity = 0;
+			_velocity = 0;
+			_gravity = 0;
 		}
 
 		//オブジェクトに当たったら、押し戻される
@@ -261,8 +287,8 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		if (object2sub.intersects(_player)) {
 			if (playerPos.y >= 379) {
 				playerPos.y = 379;
-				velocity = 0;
-				gravity = 0;
+				_velocity = 0;
+				_gravity = 0;
 			}
 
 		}
@@ -272,8 +298,8 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		if (object3sub.intersects(_player)) {
 			if (playerPos.y >= 329) {
 				playerPos.y = 329;
-				velocity = 0;
-				gravity = 0;
+				_velocity = 0;
+				_gravity = 0;
 			}
 
 		}
@@ -283,8 +309,8 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		if (object5sub.intersects(_player)) {
 			if (playerPos.y >= 229) {
 				playerPos.y = 229;
-				velocity = 0;
-				gravity = 0;
+				_velocity = 0;
+				_gravity = 0;
 			}
 
 		}
@@ -294,8 +320,8 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		if (object6sub.intersects(_player)) {
 			if (playerPos.y >= 129) {
 				playerPos.y = 129;
-				velocity = 0;
-				gravity = 0;
+				_velocity = 0;
+				_gravity = 0;
 			}
 
 		}
@@ -305,16 +331,16 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		if (object9sub.intersects(_player)) {
 			if (playerPos.y >= 380) {
 				playerPos.y = 380;
-				velocity = 0;
-				gravity = 0;
+				_velocity = 0;
+				_gravity = 0;
 			}
 
 		}
 		if (object10.intersects(_player)) {
 
 			playerPos.y = 480;
-			velocity = 0;
-			gravity = 0;
+			_velocity = 0;
+			_gravity = 0;
 
 		}
 	}
