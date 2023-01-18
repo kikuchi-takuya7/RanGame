@@ -1,0 +1,66 @@
+# include <Siv3D.hpp> // OpenSiv3D v0.6.3
+
+void Main()
+{
+
+	Vec2 ballVelocity{ 0,0 };
+	//ボールの大きさ
+	Circle ball{ 400, 400, 8 };
+
+	Circle yuki{ 600, 465, 10 };
+	Circle daruma{ 600, 480, 12 };
+
+	
+	while (System::Update())
+	{
+		int p = rand() % 50;
+		 daruma.x -= 1;
+		 yuki.x -= 1;
+		//これは知らん
+		ball.moveBy(ballVelocity * Scene::DeltaTime());
+		//白いバー
+		const Rect paddle{ Arg::center(Cursor::Pos().x, 500), 600, 10 };
+		//青いバー
+		const Rect a{ Arg::center(Cursor::Pos().x, 510), 600, 10 };
+		//重力
+		ballVelocity.y += 8;
+		//白いバーの当たり判定
+		if (0 < ballVelocity.y && paddle.intersects(ball))
+		{
+			//重力を０にする
+			ballVelocity.y = 0;
+		}
+		//青いバーの当たり判定
+		if (a.intersects(ball))
+		{
+
+			// ゲームオーバー
+			break;
+		}
+		if (yuki, daruma.intersects(ball))
+		{
+			break;
+		}
+		//左クリックを押すとジャンプする
+		if (MouseL.down())
+		{
+			ballVelocity.y -= 500;
+		}
+		
+		if (p == 15)
+		{
+			ball.draw();
+			yuki.draw();
+		}
+			//ボールの描画
+			ball.draw();
+			yuki.draw();
+			daruma.draw();
+			//バーの描画
+			paddle.draw();
+			a.draw(Palette::Skyblue);
+
+		
+	}
+}
+
