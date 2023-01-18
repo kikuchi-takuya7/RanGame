@@ -23,9 +23,7 @@ void Main()
 	double tMove = 0.0;//時間を獲得する変数　(Scene::DeltaTime() * 180);
 	double limit = 30.0;
 	double velocity = 0;//ジャンプの初速
-	double gravity = 0;
-	/*double angle = ToRadians(30);
-	double jumpS = velocity * sin(angle);*/
+	double gravity = 0;//重力
 	int pattern[2]; //オブジェクトの配置パターン
 	int period = 0; //パターンの周期
 
@@ -99,13 +97,13 @@ void Main()
 
 		//ジャンプ
 		if (KeySpace.down()) {
-			velocity = -1.0f;
+			velocity = 9.0f;
 			gravity = 2.0f;
 		}
 
-		gravity = 2.0f;
 		playerPos.y -= velocity;
 		playerPos.y += gravity;
+		gravity += 0.1f;
 
 			if (playerPos.y >= 480) {
 				playerPos.y = 480;
