@@ -215,7 +215,7 @@ void pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object9.draw(Palette::Black);
 
 	//当たり判定
-			//敵に当たったら、画面が止まる
+	//敵に当たったら、画面が止まる
 	if (enemyS.intersects(_player)) {
 		_die += 1;
 	}
