@@ -9,7 +9,7 @@ Vec2 playerPos = { 100, 480 };//プレイヤーの位置
 void Reset(double& _velocity, double& _gravity, int& _jummptmp, int& _jumpcount);
 
 //敵が出てくるパターん
-void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player, int _die,
+void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player, int &_die,
 				double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob,
 				double &_velocity, double &_gravity, int &_jummptmp, int &_jumpcount);
 
@@ -20,6 +20,7 @@ void Main()
 	const Texture mob{ U"example/mob.png" };
 	const Texture skymob{ U"example/skymob.png" };
 	const Font gameclear{ 80 };
+	const String text = U"GAME CLEAR";
 	double move = 0.0;//最初
 	double move2 = 800.0;//
 	double move3 = 1600.0;//障害物が出てくるパターンの場所
@@ -33,11 +34,12 @@ void Main()
 	double limit = 30.0;
 	double velocity = 0;//ジャンプの初速
 	double gravity = 0;//重力
-	int pattern[2] = {1,1}; //オブジェクトの配置パターン
+	int pattern[2] = {0,0}; //オブジェクトの配置パターン
 	int period = 0; //パターンの周期
 	int jumpcount = 0;//ジャンプ回数
 	int jumptmp = 0;//
-
+	double y = 0;
+	double x = 0;
 
 	/*for (int i = 0; i < 2; i++) {
 		pattern[i] = rand() % 2;
@@ -51,6 +53,9 @@ void Main()
 			tMove = (Scene::DeltaTime() * 180);
 		}
 		else if (period == 1) {
+			tMove = (Scene::DeltaTime() * 240);
+		}
+		else if (period == 2) {
 			tMove = (Scene::DeltaTime() * 300);
 		}
 
@@ -86,12 +91,12 @@ void Main()
 
 		//30秒経過したらクリア
 		if (limit <= 0) {
-
+			gameclear(text).draw(20, 200);
 		}
 
 		//最初の足場
 		start -= tMove;
-		RectF scaffold{ start, 500, 1600, 10 };
+		RectF scaffold{ start, 500, 38000, 10 };
 		scaffold.draw(Palette::Black);
 
 		//画面恥の表示
@@ -112,9 +117,9 @@ void Main()
 		Print << score;
 
 		//ジャンプ
-		if (KeySpace.down() && jumpcount <= 1) {
+		if (KeySpace.down() && jumpcount <= 1 && die == 0) {
 			velocity = 8.0f; //ジャンプの初速
-			gravity = 2.0f; //重力
+			gravity = 2.0f; //重力 
 			jumpcount += 1;
 			jumptmp = 1;
 		}
@@ -129,7 +134,7 @@ void Main()
 
 		//急降下
 		if (KeyDown.down() && velocity != 0) {
-			gravity += 30.0f;
+			gravity += 20.0f;
 		}
 
 		if (playerPos.y >= 480) {
@@ -141,12 +146,16 @@ void Main()
 		Vec2 player3{ player.x, player.y };
 		switch (pattern[period])
 		{
-		case 1:
+		case 0:
 
 			Pattern1(move2, move3, bottomO, bottomE, scaleE, player3, die, tMove,
 						/*playerPos,*/ mob, skymob, velocity, gravity, jumptmp, jumpcount);
-
 			break;
+
+		case 1:
+			break;
+
+
 		}
 
 
@@ -157,12 +166,16 @@ void Main()
 		}
 
 		//爆発のエフェクト
+		/*if (die == 1) { 
+			double x = playerPos.x;
+			double y = playerPos.y;
+		}*/
 		if (die >= 1 && die <= 120) {
 			explosion.draw(playerPos.x - 400, playerPos.y - 300);
 		}
 		else if (die >= 120 && die <= 300) {
 
-			explosion.draw(playerPos.x - 400, playerPos.y - 300, ColorF{ 1.0, Periodic::Sine0_1(5s) });
+			explosion.draw(playerPos.x - 400, playerPos.y - 300, ColorF{ 1.0, Periodic::Sine0_1(6s) });
 		}
 
 	}
@@ -179,7 +192,7 @@ void Reset(double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount) 
 
 
 void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Vec2 _player,
-				int _die, double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob,
+				int &_die, double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob,
 				double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount)
 {
 
@@ -214,7 +227,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object3.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object3sub{ _move3 + 110, _bottomO - 50, 90, 100 };
+	RectF object3sub{ _move3 + 110, _bottomO - 50, 95, 100 };
 	object3sub.draw(Palette::Black);
 
 	RectF object4{ _move3 + 200, _bottomO - 50, 100, 100 };
@@ -224,14 +237,14 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object5.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object5sub{ _move3 + 210, _bottomO - 150, 90, 100 };
+	RectF object5sub{ _move3 + 210, _bottomO - 150, 95 , 100 };
 	object5sub.draw(Palette::Black);
 
 	RectF object6{ _move3 + 300, _bottomO - 250, 10, 100 };
 	object6.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object6sub{ _move3 + 310, _bottomO - 250, 90, 100 };
+	RectF object6sub{ _move3 + 305, _bottomO - 250, 95, 100 };
 	object6sub.draw(Palette::Black);
 
 	RectF object7{ _move3 + 300, _bottomO - 150, 100, 100 };
