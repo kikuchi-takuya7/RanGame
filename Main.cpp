@@ -94,7 +94,7 @@ void Main()
 		RectF scaffold{ start, 500, 1600, 10 };
 		scaffold.draw(Palette::Black);
 
-		//画面恥の表示
+		//画面端の表示
 		RectF edge{ 0, 0, 5, 800 };
 		edge.draw(Palette::Red);
 
