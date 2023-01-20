@@ -3,7 +3,7 @@
 # include "main.h"
 
 
-Vec2 playerPos = { 100, 480 };//プレイヤーの位置
+Vec2 playerPos = { 200, 480 };//プレイヤーの位置
 
 //オブジェの上に乗ったときに重力などをなくす関数
 void Reset(double& _velocity, double& _gravity, int& _jummptmp, int& _jumpcount);
@@ -25,7 +25,7 @@ void Main()
 	double move2 = 800.0;//
 	double move3 = 1600.0;//障害物が出てくるパターンの場所
 	int score = 0;
-	double bottomO = 400.0;//修正がしやすいように障害物のy座標
+	double bottomO = 300.0;//修正がしやすいように障害物のy座標
 	double bottomE = 485.0;//敵のy座標
 	double scaleE = 50;//敵の大きさ
 	double start = 0.0;//最初だけの足場
@@ -34,8 +34,8 @@ void Main()
 	double limit = 30.0;
 	double velocity = 0;//ジャンプの初速
 	double gravity = 0;//重力
-	int pattern[2] = {0,0}; //オブジェクトの配置パターン
-	int period = 0; //パターンの周期
+	int pattern[4] = {0,0,0,0} ; //オブジェクトの配置パターン
+	int period = 0;//パターンの周期
 	int jumpcount = 0;//ジャンプ回数
 	int jumptmp = 0;//
 	double y = 0;
@@ -70,16 +70,19 @@ void Main()
 			}
 			if (move2 <= -1600) {
 				move2 = 800.0;
+				
 			}
 			if (move3 <= -1600) {
 				move3 = 800.0;
 				period += 1;//周期を一回終えて素早さアップしたい
 			}
+			
+			
 		}
 		background.draw(move, 0);
 		background.draw(move2, 0);
 		background.draw(move3, 0);
-
+		//background.draw(move4, 0);
 		//時間計測
 		if (die == 0 && limit >= 0) {
 			limit = 30 - Scene::Time();
@@ -89,6 +92,10 @@ void Main()
 			Print << limit;
 		}
 
+		/*if (limit < 15)
+		{
+			period += 1;
+		}*/
 		//30秒経過したらクリア
 		if (limit <= 0) {
 			gameclear(text).draw(20, 200);
@@ -144,7 +151,7 @@ void Main()
 
 		//敵の表示
 		Vec2 player3{ player.x, player.y };
-		switch (pattern[period])
+ 		switch (pattern[period])
 		{
 		case 0:
 
@@ -295,27 +302,28 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		playerPos.x = playerPos.x - _tMove;
 	}
 	if (objectsub.intersects(_player)) {
-		playerPos.y = 380;
+		playerPos.y = playerPos.y  - _tMove;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
-	else if (playerPos.x >= objectsub.x + 90){
+	else if (playerPos.x >= objectsub.x  ){
 		_jumptmp = 1;
 	}
 	if (object2.intersects(_player)) {
 		playerPos.x = playerPos.x - _tMove;
 	} 
 	if (object2sub.intersects(_player)) {
-		playerPos.y = 380;
+		playerPos.y = playerPos.y -20 - _tMove;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+		
 	}
-	else if (playerPos.x >= object2sub.x + 90) {
+	else if (playerPos.x >= object2sub.x ) {
 		_jumptmp = 1;
 	}
 	if (object3.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
+		playerPos.x = playerPos.x + _tMove;
 	}
 	if (object3sub.intersects(_player)) {
-		playerPos.y = 330;
+		playerPos.y = playerPos.y - _tMove;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 	else if (playerPos.x >= object3sub.x + 90) {
@@ -325,7 +333,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		playerPos.x = playerPos.x - _tMove;
 	}
 	if (object5sub.intersects(_player)) {
-		playerPos.y = 230;
+		playerPos.y = playerPos.y - _tMove;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 	else if (playerPos.x >= object5sub.x + 90) {
@@ -335,7 +343,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		playerPos.x = playerPos.x - _tMove;
 	}
 	if (object6sub.intersects(_player)) {
-		playerPos.y = 130;
+		playerPos.y = playerPos.y - _tMove;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 	else if (playerPos.x >= object6sub.x + 90) {
@@ -345,14 +353,14 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		playerPos.x = playerPos.x - _tMove;
 	}
 	if (object9sub.intersects(_player)) {
-		playerPos.y = 380;
+		playerPos.y = playerPos.y - _tMove;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 	else if (playerPos.x >= object9sub.x + 90) {
 		_jumptmp = 1;
 	}
 	if (object10.intersects(_player)) {
-			playerPos.y = 480;
+		playerPos.y = playerPos.y - _tMove;
 			Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 }
