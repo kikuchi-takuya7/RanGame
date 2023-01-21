@@ -1,6 +1,5 @@
-﻿
-# include <Siv3D.hpp> // OpenSiv3D v0.6.3
-# include "main.h"
+﻿# include <Siv3D.hpp> // OpenSiv3D v0.6.3
+//# include "main.h"
 
 
 Vec2 playerPos = { 100, 480 };//プレイヤーの位置
@@ -27,9 +26,9 @@ void Main()
 	double move2 = 800.0;//
 	double move3 = 1600.0;//障害物が出てくるパターンの場所
 	int score = 0;
-	double bottomO = 400.0;//修正がしやすいように障害物のy座標
-	double bottomE = 485.0;//敵のy座標
-	double scaleE = 50;//敵の大きさ
+	const double bottomO = 400.0;//修正がしやすいように障害物のy座標
+	const double bottomE = 485.0;//敵のy座標
+	const double scaleE = 50;//敵の大きさ
 	double start = 0.0;//最初だけの足場
 	int die = 0;//死亡時に画面を止める変数
 	double tMove = 0.0;//時間を獲得する変数　(Scene::DeltaTime() * 180);
@@ -39,7 +38,7 @@ void Main()
 	int pattern[4] = {0,0,0,0}; //オブジェクトの配置パターン
 	int period = 0; //パターンの周期
 	int jumpcount = 0;//ジャンプ回数
-	int jumptmp = 0;//
+	int jumptmp = 0;//1ならジャンプの処理が続いて0なら処理しない・時間があれば関数にしたい
 	double y = 0;
 	double x = 0;
 
@@ -213,6 +212,12 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	Triangle enemy4{ _move2 + 600, _bottomE, _scaleE };
 	enemy4.draw(Palette::Red);
 
+	Triangle enemy5{ _move3 + 300, _bottomE, _scaleE };
+	enemy5.draw(Palette::Red);
+
+	Triangle enemy6{ _move3 + 500, _bottomE, _scaleE };
+	enemy6.draw(Palette::Red);
+
 	RectF object{ _move2, _bottomO, 10, 100 };
 	object.draw(Palette::Black);
 
@@ -230,8 +235,8 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object3.draw(Palette::Black);
 
 	//上の壁のオブジェクト
-	RectF object3sub{ _move3 + 110, _bottomO - 50, 95, 100 };
-	object3sub.draw(Palette::Black);
+	RectF object3sub{ _move3 + 110, _bottomO - 50, 90, 50 };
+	object3sub.draw(Palette::Blue);
 
 	RectF object4{ _move3 + 200, _bottomO - 50, 100, 100 };
 	object4.draw(Palette::Black);
@@ -256,12 +261,6 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	RectF object8{ _move3 + 300, _bottomO - 50, 100, 100 };
 	object8.draw(Palette::Black);
 
-	Triangle enemy5{ _move3 + 300, _bottomE, _scaleE };
-	enemy5.draw(Palette::Red);
-
-	Triangle enemy6{ _move3 + 500, _bottomE, _scaleE };
-	enemy6.draw(Palette::Red);
-
 	RectF object9{ _move3 + 700, _bottomO, 10, 100 };
 	object9.draw(Palette::Black);
 
@@ -270,7 +269,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object9sub.draw(Palette::Black);
 
 	RectF object10{ _move3 + 110, _bottomO - 40, 290, 100 };
-	object10.draw(Palette::Black);
+	object10.draw(Palette::White);
 
 	//当たり判定
 	//敵に当たったら、画面が止まる
@@ -292,16 +291,20 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	if (enemy6.intersects(_player)) {
 		_die += 1;
 	}
-	Vec2 objsub{ _move2 + 10, _bottomO };
+	//Vec2 objsub2{ _move2 + 660, _bottomO }; 試しにvec2型に座標を入れてから当たり判定を作ったけど変わらず
 
 
 	/*オブジェクトに当たったら、押し戻される*/
 	if (object.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
+		playerPos.x = playerPos.x - _tMove;//交差した瞬間に止まるはずなのに少しめり込んでから止まる
 	}
 	if (playerPos.y + _gravity >= objectsub.y && playerPos.x <= objectsub.x + 90 && playerPos.x >= objectsub.x) {
 		playerPos.y = 380;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+		//一回目だけ上手く行くのもわからない。一回目の処理で何かしらの数字が変わってしまっている?
+		/*_jumptmp = 0;
+		_velocity = 0;
+		_jumpcount = 0;*/
 	}
 	//if (objectsub.intersects(_player)) {
 	//	playerPos.y = 380;
@@ -323,7 +326,12 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	}*/
 	if (playerPos.y + _gravity >= object2sub.y && playerPos.x <= object2sub.x + 90 && playerPos.x >= object2sub.x) {
 		playerPos.y = 380;
-		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+		//Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+		//_gravity = 0; //重力だけ初期化しなかったらオブジェから離れたら急降下しちゃうけどちゃんと乗りはする。ガチでわけわからん
+		//そもそもオブジェクトの当たり判定がおそらくxy20ずつ小さくなってる。何で？多分これが解決すれば全部治る
+		_jumptmp = 0;
+		_velocity = 0;
+		_jumpcount = 0;
 	}
 	else if (playerPos.x >= object2sub.x + 90) {
 		_jumptmp = 1;
@@ -331,7 +339,12 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	if (object3.intersects(_player)) {
 		playerPos.x = playerPos.x - _tMove;
 	}
-	if (object3sub.intersects(_player)) {
+	/*if (object3sub.intersects(_player)) {
+		playerPos.y = 330;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}*/
+	if (playerPos.y + _gravity >= object3sub.y && playerPos.x <= object3sub.x + 90 && playerPos.x >= object3sub.x
+			&& object3sub.y + 50 >= playerPos.y) {
 		playerPos.y = 330;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
