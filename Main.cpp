@@ -194,11 +194,13 @@ void DrawAll(double _move, double _move2, double _move3, int _die, double _limit
 	//爆発のエフェクト
 	if (_die >= 1 && _die <= 120) {
 		_explosion.draw(playerPos.x - 400, playerPos.y - 300);
-		gameover(text2).draw(20, 200);
 	}
 	else if (_die >= 120 && _die <= 300) {
 
 		_explosion.draw(playerPos.x - 400, playerPos.y - 300, ColorF{ 1.0, Periodic::Sine0_1(6s) });
+	}
+	if (_die > 1)
+	{
 		gameover(text2).draw(20, 200);
 	}
 }
