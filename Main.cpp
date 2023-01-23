@@ -199,6 +199,7 @@ void DrawAll(double _move, double _move2, double _move3, int _die, double _limit
 	else if (_die >= 120 && _die <= 300) {
 
 		_explosion.draw(playerPos.x - 400, playerPos.y - 300, ColorF{ 1.0, Periodic::Sine0_1(6s) });
+		gameover(text2).draw(20, 200);
 	}
 }
 
@@ -223,6 +224,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 
 	Triangle enemyS2{ _move2 + 300, _bottomE - 200, _scaleE };
 	enemyS2.draw(Palette::Red);
+	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 200);
 
 	Triangle enemy3{ _move2 + 500, _bottomE, _scaleE };
 	enemy3.draw(Palette::Red);
@@ -230,12 +232,15 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 
 	Triangle enemy4{ _move2 + 600, _bottomE, _scaleE };
 	enemy4.draw(Palette::Red);
+	_mob.scaled(0.3).drawAt(_move2 + 600, _bottomE);
 
 	Triangle enemy5{ _move3 + 300, _bottomE, _scaleE };
 	enemy5.draw(Palette::Red);
+	_mob.scaled(0.3).drawAt(_move3 + 300, _bottomE);
 
 	Triangle enemy6{ _move3 + 500, _bottomE, _scaleE };
 	enemy6.draw(Palette::Red);
+	_mob.scaled(0.3).drawAt(_move3 + 500 , _bottomE);
 
 	RectF object{ _move2, _bottomO, 1, 100 };
 	object.draw(Palette::Black);
@@ -386,7 +391,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		playerPos.x = playerPos.x - _tMove;
 	}
 	if (object10.intersects(_player)) {
-		playerPos.y = playerPos.y - _tMove;
+		playerPos.y = playerPos.y + _tMove;
 			Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 }
