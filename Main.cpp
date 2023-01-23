@@ -199,6 +199,7 @@ void DrawAll(double _move, double _move2, double _move3, int _die, double _limit
 
 		_explosion.draw(playerPos.x - 400, playerPos.y - 300, ColorF{ 1.0, Periodic::Sine0_1(6s) });
 	}
+	//ゲームオーバー表示
 	if (_die > 1)
 	{
 		gameover(text2).draw(20, 200);
