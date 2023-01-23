@@ -1,6 +1,6 @@
 ﻿# include <Siv3D.hpp> // OpenSiv3D v0.6.3
 
-Vec2 playerPos = { 400, 480 };//プレイヤーの位置
+Vec2 playerPos = { 200, 480 };//プレイヤーの位置
 
 void Main();
 
@@ -9,7 +9,7 @@ void InitAll();
 void UpdateAll(int &_period,double &_tMove,double &_move, double &_move2, double &_move3, double &_limit, int &_score/*, double _bottomO, double _bottomE, double _scaleE, Vec2 _player*/,
 				int& _die, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount);
 
-void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text,
+void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text, Font gameover, String text2,
 				Texture _background, RectF _scaffold, RectF _edge, Circle _player, Texture _explosion);
 
 //オブジェの上に乗ったときに重力などをなくす関数
@@ -27,7 +27,9 @@ void Main()
 	const Texture mob{ U"example/mob.png" };
 	const Texture skymob{ U"example/skymob.png" };
 	const Font gameclear{ 80 };
+	const Font gameover { 80 };
 	const String text = U"GAME CLEAR";
+	const String text2 = U"GAME OVER";
 	//最初の足場
 	RectF scaffold{ 0, 500, 800, 10 };
 	//画面恥の表示
@@ -48,7 +50,7 @@ void Main()
 	int period = 0;//パターンの周期
 	int jumpcount = 0;//ジャンプ回数
 	int jumptmp = 0;//1ならジャンプの処理が続いて0なら処理しない・時間があれば関数にしたい
-
+	
 	InitAll();
 
 	while (System::Update())
@@ -60,7 +62,7 @@ void Main()
 		//プレイヤーの表示
 		Circle player{ playerPos.x, playerPos.y, 20 };
 
-		DrawAll(move, move2, move3, die, limit, gameclear, text, background, scaffold, edge, player, explosion);
+		DrawAll(move, move2, move3, die, limit, gameclear, text, gameover , text2, background, scaffold, edge, player, explosion);
 
 		//敵の表示
 		//Vec2 player3{ player.x, player.y };  ←こいつのせいだった。確かにこれだと座標の真ん中にしか判定が出来なくなる。スッキリ
@@ -90,7 +92,7 @@ void InitAll() {
 void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, double &_move3,double &_limit, int &_score,/*, double _bottomO, double _bottomE, double _scaleE, Vec2 _player*/
 				int& _die, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount){
 
-
+	
 	if (_period == 0) {
 		_tMove = (Scene::DeltaTime() * 180);
 	}
@@ -134,7 +136,8 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 		_score += _tMove;
 	}
 
-	Print << _score;
+	Print << U"score:" << _score;
+	
 
 	//ジャンプ
 	if (KeySpace.down() && _jumpcount <= 1 && _die == 0) {
@@ -168,7 +171,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 	}
 }
 
-void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text,
+void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text, Font gameover ,String text2,
 				Texture _background, RectF _scaffold, RectF _edge, Circle _player, Texture _explosion){
 
 	_background.draw(_move, 0);
@@ -191,6 +194,7 @@ void DrawAll(double _move, double _move2, double _move3, int _die, double _limit
 	//爆発のエフェクト
 	if (_die >= 1 && _die <= 120) {
 		_explosion.draw(playerPos.x - 400, playerPos.y - 300);
+		gameover(text2).draw(20, 200);
 	}
 	else if (_die >= 120 && _die <= 300) {
 
