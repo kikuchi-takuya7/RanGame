@@ -125,10 +125,10 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 	//時間計測
 	if (_die == 0 && _limit >= 0) {
 		_limit = 30 - Scene::Time();
-		Print << _limit;
+		Print << U"Time:" << _limit;
 	}
 	else if (_die != 0) {
-		Print << _limit;
+		Print << U"Time:" << _limit;
 	}
 
 	//スコアの増加と表示
