@@ -11,7 +11,7 @@ void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_d
 
 //ほぼすべての処理
 void UpdateAll(int &_period,double &_tMove,double &_move, double &_move2, double &_move3, double &_limit, int &_score,
-				int &_die, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount);
+				int &_die, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount, Font _speadup, String _Up, int &_speadtmp);
 
 //背景の表示を一番後ろに
 void DrawBack(Texture _background, double _move, double _move2, double _move3);
@@ -72,6 +72,7 @@ void Main()
 	int period;//パターンの周期
 	int jumpcount;//ジャンプ回数
 	int jumptmp;//1ならジャンプの処理が続いて0なら処理しない・時間があれば関数にしたい
+	int speadtmp = 0;//スピードアップを表示させるためのやつ
 	
 	InitAll(move, move2, move3, score, die, tMove,limit, velocity, gravity, pattern, NUM, period, jumpcount, jumptmp);
 
@@ -81,7 +82,7 @@ void Main()
 
 		DrawBack(background, move, move2, move3);
 
-		UpdateAll(period, tMove, move, move2, move3, limit, score, die, velocity, gravity, jumptmp, jumpcount);
+		UpdateAll(period, tMove, move, move2, move3, limit, score, die, velocity, gravity, jumptmp, jumpcount, speadUp, Up, speadtmp);
 
 		//プレイヤーの表示
 		Circle player{ playerPos.x, playerPos.y, 20 };
@@ -108,7 +109,7 @@ void Main()
 
 			break;
 		}
-
+		
 		DrawAll(move, move2, move3, die, limit, gameclear, text, gameover, text2, scaffold, edge, player, explosion);
 
 	}
@@ -131,15 +132,15 @@ void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_d
 	_jumpcount = 0;
 	_jumptmp = 0;
 
+	//ランダムなパターンを選出
 	for (int i = 0; i < NUM; i++) {
-		_pattern[i] = 0/*rand() % 2*/;
+		_pattern[i] = rand() % 2;
 	}
 }
 
 void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, double &_move3,double &_limit, int &_score,/*, double _bottomO, double _bottomE, double _scaleE, Vec2 _player*/
-				int &_die, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount){
+				int &_die, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount, Font _speadup, String _Up, int &_speadtmp){
 
-	
 	if (_period == 0) {
 		_tMove = (Scene::DeltaTime() * 180);
 	}
@@ -158,17 +159,26 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 		_move3 -= _tMove;
 		if (_move <= -1600) {
 			_move = 800.0;
+			_speadtmp = 1;
 		}
 		if (_move2 <= -1600) {
 			_move2 = 800.0;
 			_period += 1;//周期を一回終えて素早さアップ
+			
 		}
 		if (_move3 <= -1600) {
 			_move3 = 800.0;
 
 		}
 	}
-	
+
+
+	if (_limit >= 5 && _die == 0) {
+		if (_speadtmp == 1) {
+			_speadup(_Up).draw(_move, 200);
+		}
+	}
+
 
 	//時間計測
 	if (_die == 0 && _limit >= 0) {
