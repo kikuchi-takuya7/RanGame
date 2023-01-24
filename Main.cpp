@@ -23,9 +23,22 @@ void DrawAll(double _move, double _move2, double _move3, int _die, double _limit
 //オブジェの上に乗ったときに重力などをなくす関数
 void Reset(double& _velocity, double& _gravity, int& _jummptmp, int& _jumpcount);
 
+//地面にくっついてる100×100オブジェクトの当たり判定
+void CollisionO(double _tMove, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount,
+				Circle _player, RectF _object, RectF objectsub);
+
+//敵の当たり判定
+void CollisionE(int &_die, Circle _player, Triangle _enemy);
+
 //敵が出てくるパターん
 void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int &_die,
-				double _tMove, Texture _mob, Texture _skymob, double &_velocity, double &_gravity, int &_jummptmp, int &_jumpcount);
+				double _tMove, Texture _mob, Texture _skymob, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount);
+
+void Pattern2(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int& _die,
+				double _tMove, Texture _mob, Texture _skymob, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount);
+
+void Pattern2Draw(Texture _skymob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2,
+					RectF _object2sub, RectF _object3, RectF _object3sub, RectF _object9, RectF _object9sub);
 
 void Main()
 {
@@ -35,8 +48,10 @@ void Main()
 	const Texture skymob{ U"example/skymob.png" };
 	const Font gameclear{ 80 };
 	const Font gameover { 80 };
+	const Font speadUp { 80 };
 	const String text = U"GAME CLEAR";
 	const String text2 = U"GAME OVER";
+	const String Up = U"SPEAD UP!";
 	//最初の足場
 	RectF scaffold{ 0, 500, 800, 10 };
 	//画面恥の表示
@@ -86,6 +101,10 @@ void Main()
 
 		case 1:
 
+			if (limit >= 0) {
+				Pattern2(move2, move3, bottomO, bottomE, scaleE, player, die, tMove,
+						 mob, skymob, velocity, gravity, jumptmp, jumpcount);
+			}
 
 			break;
 		}
@@ -142,7 +161,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 		}
 		if (_move2 <= -1600) {
 			_move2 = 800.0;
-			_period += 1;//周期を一回終えて素早さアップしたい
+			_period += 1;//周期を一回終えて素早さアップ
 		}
 		if (_move3 <= -1600) {
 			_move3 = 800.0;
@@ -163,6 +182,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 	//スコアの増加と表示
 	if (_die == 0 && _limit >= 0) {
 		_score += _tMove;
+		_score += playerPos.x;//高得点を目指せるようにプレイヤーの位置分の得点を加算するようにした
 	}
 
 	Print << U"score:" << _score;
@@ -249,6 +269,29 @@ void Reset(double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount) 
 	_jumpcount = 0;
 }
 
+void CollisionO(double _tMove, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount,
+				Circle _player, RectF _object, RectF _objectsub){
+
+	/*オブジェクトに当たったら、押し戻される*/
+	if (_object.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}
+	if (_player.y + _gravity + 20 >= _objectsub.y && _player.x <= _objectsub.x + 90 && _player.x >= _objectsub.x) {
+		playerPos.y = 380;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (_player.x >= _objectsub.x + 90) {
+		_jumptmp = 1;
+	}
+}
+
+void CollisionE(int &_die, Circle _player, Triangle _enemy){
+
+	if (_enemy.intersects(_player)) {
+		_die += 1;
+	}
+}
+
 
 void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player,
 				int &_die, double _tMove, Texture _mob, Texture _skymob,
@@ -328,51 +371,19 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 
 	//当たり判定
 	//敵に当たったら、画面が止まる
-	if (enemyS.intersects(_player)) {
-		_die += 1;
-	}
-	if (enemyS2.intersects(_player)) {
-		_die += 1;
-	}
-	if (enemy3.intersects(_player)) {
-		_die += 1;
-	}
-	if (enemy4.intersects(_player)) {
-		_die += 1;
-	}
-	if (enemy5.intersects(_player)) {
-		_die += 1;
-	}
-	if (enemy6.intersects(_player)) {
-		_die += 1;
-	}
+	CollisionE(_die, _player, enemyS);
+	CollisionE(_die, _player, enemyS2);
+	CollisionE(_die, _player, enemy3);
+	CollisionE(_die, _player, enemy4);
+	CollisionE(_die, _player, enemy5);
+	CollisionE(_die, _player, enemy6);
 
 	/*オブジェクトに当たったら、押し戻される*/
-	if (object.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
-	}
-	if (_player.y + _gravity + 20 >= objectsub.y && _player.x <= objectsub.x + 90 && _player.x >= objectsub.x) {
-		playerPos.y = 380;
-		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
-	}
-	else if (_player.x >= objectsub.x + 90){
-		_jumptmp = 1;
-	}
-
-	if (object2.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
-	} 
-	if (playerPos.y + _gravity + 20 >= object2sub.y && playerPos.x <= object2sub.x + 90 && playerPos.x >= object2sub.x) {
-		playerPos.y = 380;
-		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
-		
-	}
-	else if (playerPos.x >= object2sub.x ) {
-		_jumptmp = 1;
-	}
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object, objectsub);
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object2, object2sub);
 
 	if (object3.intersects(_player)) {
-		playerPos.x = playerPos.x + _tMove;
+		playerPos.x = playerPos.x - _tMove;
 	}
 	if (playerPos.y + _gravity + 20 >= object3sub.y && playerPos.x <= object3sub.x + 90 && playerPos.x >= object3sub.x
 			&& object3sub.y + 45 >= playerPos.y) {
@@ -407,16 +418,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		_jumptmp = 1;
 	}
 
-	if (object9.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
-	}
-	if (playerPos.y + _gravity + 20 >= object9sub.y && playerPos.x <= object9sub.x + 90 && playerPos.x >= object9sub.x) {
-		playerPos.y = 380;
-		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
-	}
-	else if (playerPos.x >= object9sub.x + 90) {
-		_jumptmp = 1;
-	}
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object9, object9sub);
 
 	if (object10.intersects(_player)) {
 		playerPos.x = playerPos.x - _tMove;
@@ -425,4 +427,77 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 		playerPos.y = playerPos.y + _tMove;
 			Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
+}
+
+void Pattern2(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player,int &_die, double _tMove,
+				Texture _mob, Texture _skymob, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount){
+
+	Triangle enemyS{ _move2 + 300, _bottomE - 300, _scaleE };
+	Triangle enemyS2{ _move3 + 750, _bottomE - 200, _scaleE };
+	Triangle enemy3{ _move2 + 500, _bottomE - 150, _scaleE };
+	Triangle enemy4{ _move2 + 600, _bottomE - 100, _scaleE };
+	Triangle enemy5{ _move3 + 300, _bottomE - 200, _scaleE };
+	Triangle enemy6{ _move3 + 500, _bottomE - 100, _scaleE };
+	Triangle enemy7{ _move3 + 750, _bottomE - 400, _scaleE };	
+	RectF object{ _move2, _bottomO, 1, 100 };
+	RectF objectsub{ _move2 + 1, _bottomO, 99, 100 };
+	RectF object2{ _move2 + 400, _bottomO, 1, 100 };
+	//上の壁のオブジェクト
+	RectF object2sub{ _move2 + 401, _bottomO, 99, 100 };
+	RectF object3{ _move3 + 100, _bottomO, 3, 100 };
+	//上の壁のオブジェクト
+	RectF object3sub{ _move3 + 101, _bottomO, 299, 100 };
+	RectF object9{ _move3 + 700, _bottomO, 1, 100 };
+	//上の壁のオブジェクト
+	RectF object9sub{ _move3 + 701, _bottomO, 99, 100 };
+
+	Pattern2Draw(_skymob, _move2, _move3, _bottomE, object, objectsub, object2, object2sub, object3, object3sub, object9, object9sub);
+
+	//当たり判定
+	//敵に当たったら、画面が止まる
+	CollisionE(_die, _player, enemyS);
+	CollisionE(_die, _player, enemyS2);
+	CollisionE(_die, _player, enemy3);
+	CollisionE(_die, _player, enemy4);
+	CollisionE(_die, _player, enemy5);
+	CollisionE(_die, _player, enemy6);
+	CollisionE(_die, _player, enemy7);
+
+	/*オブジェクトに当たったら、押し戻される*/
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object, objectsub);
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object2, object2sub);
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object9, object9sub);
+
+	//obj3だけ長いから別処理
+	if (object3.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}
+	if (playerPos.y + _gravity + 20 >= object3sub.y && playerPos.x <= object3sub.x + 290 && playerPos.x >= object3sub.x
+			&& object3sub.y + 45 >= playerPos.y) {
+		playerPos.y = 380;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (playerPos.x >= object3sub.x + 90) {
+		_jumptmp = 1;
+	}
+
+}
+
+void Pattern2Draw(Texture _skymob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2, RectF _object2sub, RectF _object3, RectF _object3sub, RectF _object9, RectF _object9sub){
+
+	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 300);//enemyS
+	_skymob.scaled(0.2).drawAt(_move3 + 750, _bottomE - 200);//enemyS2
+	_skymob.scaled(0.2).drawAt(_move2 + 500, _bottomE - 150);//enemy3
+	_skymob.scaled(0.2).drawAt(_move2 + 600, _bottomE - 100);//enemy4
+	_skymob.scaled(0.2).drawAt(_move3 + 300, _bottomE - 200);//enemy5
+	_skymob.scaled(0.2).drawAt(_move3 + 500, _bottomE - 100);//enemy6
+	_skymob.scaled(0.2).drawAt(_move3 + 750, _bottomE - 400);//enemy7
+	_object.draw(Palette::Black);
+	_objectsub.draw(Palette::Black);
+	_object2.draw(Palette::Black);
+	_object2sub.draw(Palette::Black);
+	_object3.draw(Palette::White);
+	_object3sub.draw(Palette::Black);
+	_object9.draw(Palette::Black);
+	_object9sub.draw(Palette::Black);
 }
