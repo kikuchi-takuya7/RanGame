@@ -62,7 +62,7 @@ void Main()
 		//プレイヤーの表示
 		Circle player{ playerPos.x, playerPos.y, 20 };
 
-		DrawAll(move, move2, move3, die, limit, gameclear, text, gameover , text2, background, scaffold, edge, player, explosion);
+		DrawAll(move, move2, move3, die, limit, gameclear, text, gameover, text2, background, scaffold, edge, player, explosion);
 
 		//敵の表示
 		//Vec2 player3{ player.x, player.y };  ←こいつのせいだった。確かにこれだと座標の真ん中にしか判定が出来なくなる。スッキリ
@@ -75,10 +75,10 @@ void Main()
 			break;
 
 		case 1:
+
+
 			break;
 		}
-
-		
 
 	}
 }
@@ -105,7 +105,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 
 
 	//背景を移動する
-	if (_die == 0) {
+	if (_die == 0 && _limit >= 0) {
 		_move -= _tMove;
 		_move2 -= _tMove;
 		_move3 -= _tMove;
@@ -121,6 +121,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 
 		}
 	}
+	
 
 	//時間計測
 	if (_die == 0 && _limit >= 0) {
@@ -174,6 +175,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text, Font gameover ,String text2,
 				Texture _background, RectF _scaffold, RectF _edge, Circle _player, Texture _explosion){
 
+	//背景の表示
 	_background.draw(_move, 0);
 	_background.draw(_move2, 0);
 	_background.draw(_move3, 0);
@@ -222,27 +224,27 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 {
 
 	Triangle enemyS{ _move2 + 300, _bottomE - 300, _scaleE };
-	enemyS.draw(Palette::Red);
+	//enemyS.draw(Palette::Red);
 	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 300);
 
 	Triangle enemyS2{ _move2 + 300, _bottomE - 200, _scaleE };
-	enemyS2.draw(Palette::Red);
+	//enemyS2.draw(Palette::Red);
 	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 200);
 
 	Triangle enemy3{ _move2 + 500, _bottomE, _scaleE };
-	enemy3.draw(Palette::Red);
+	//enemy3.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move2 + 500, _bottomE);
 
 	Triangle enemy4{ _move2 + 600, _bottomE, _scaleE };
-	enemy4.draw(Palette::Red);
+	//enemy4.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move2 + 600, _bottomE);
 
 	Triangle enemy5{ _move3 + 300, _bottomE, _scaleE };
-	enemy5.draw(Palette::Red);
+	//enemy5.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move3 + 300, _bottomE);
 
 	Triangle enemy6{ _move3 + 500, _bottomE, _scaleE };
-	enemy6.draw(Palette::Red);
+	//enemy6.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move3 + 500 , _bottomE);
 
 	RectF object{ _move2, _bottomO, 1, 100 };
@@ -299,7 +301,7 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	object10.draw(Palette::Black);
 
 	//当たり判定
-	//敵に当たったら、画面が止まる　デバックしやすいように当たり判定消した
+	//敵に当たったら、画面が止まる
 	if (enemyS.intersects(_player)) {
 		_die += 1;
 	}
