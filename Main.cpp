@@ -1,24 +1,31 @@
 ﻿# include <Siv3D.hpp> // OpenSiv3D v0.6.3
 
+#define NUM 4
+
 Vec2 playerPos = { 200, 480 };//プレイヤーの位置
 
 void Main();
 
-void InitAll();
+void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_die, double &_tMove, double &_limit,
+				double &_velocity, double &_gravity, int _pattern[], int _NUM, int &_period, int &_jumpcount, int &_jumptmp);
 
-void UpdateAll(int &_period,double &_tMove,double &_move, double &_move2, double &_move3, double &_limit, int &_score/*, double _bottomO, double _bottomE, double _scaleE, Vec2 _player*/,
-				int& _die, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount);
+//ほぼすべての処理
+void UpdateAll(int &_period,double &_tMove,double &_move, double &_move2, double &_move3, double &_limit, int &_score,
+				int &_die, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount);
 
+//背景の表示を一番後ろに
+void DrawBack(Texture _background, double _move, double _move2, double _move3);
+
+//ほとんどすべての表示
 void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text, Font gameover, String text2,
-				Texture _background, RectF _scaffold, RectF _edge, Circle _player, Texture _explosion);
+				RectF _scaffold, RectF _edge, Circle _player, Texture _explosion);
 
 //オブジェの上に乗ったときに重力などをなくす関数
 void Reset(double& _velocity, double& _gravity, int& _jummptmp, int& _jumpcount);
 
 //敵が出てくるパターん
 void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int &_die,
-				double _tMove, /*Vec2 _playerPos,*/ Texture _mob, Texture _skymob,
-					double &_velocity, double &_gravity, int &_jummptmp, int &_jumpcount);
+				double _tMove, Texture _mob, Texture _skymob, double &_velocity, double &_gravity, int &_jummptmp, int &_jumpcount);
 
 void Main()
 {
@@ -34,35 +41,35 @@ void Main()
 	RectF scaffold{ 0, 500, 800, 10 };
 	//画面恥の表示
 	RectF edge{ 0, 0, 5, 800 };
-	double move = 0.0;//最初
-	double move2 = 800.0;//
-	double move3 = 1600.0;//障害物が出てくるパターンの場所
-	int score = 0;
+	double move;//最初
+	double move2;//
+	double move3;//障害物が出てくるパターンの場所
+	int score;
 	const double bottomO = 400.0;//修正がしやすいように障害物のy座標
-	const double bottomE = 485.0;//敵のy座標
+	const double bottomE = 480.0;//敵のy座標
 	const double scaleE = 50;//敵の大きさ
-	int die = 0;//死亡時に画面を止める変数
-	double tMove = 0.0;//時間を獲得する変数　(Scene::DeltaTime() * 180);
-	double limit = 30.0;
-	double velocity = 0;//ジャンプの初速
-	double gravity = 0;//重力
-	int pattern[4] = {0,0,0,0} ; //オブジェクトの配置パターン
-	int period = 0;//パターンの周期
-	int jumpcount = 0;//ジャンプ回数
-	int jumptmp = 0;//1ならジャンプの処理が続いて0なら処理しない・時間があれば関数にしたい
+	int die;//死亡時に画面を止める変数
+	double tMove;//時間を獲得する変数　(Scene::DeltaTime() * 180);
+	double limit;
+	double velocity;//ジャンプの初速
+	double gravity;//重力
+	int pattern[NUM]; //オブジェクトの配置パターン
+	int period;//パターンの周期
+	int jumpcount;//ジャンプ回数
+	int jumptmp;//1ならジャンプの処理が続いて0なら処理しない・時間があれば関数にしたい
 	
-	InitAll();
+	InitAll(move, move2, move3, score, die, tMove,limit, velocity, gravity, pattern, NUM, period, jumpcount, jumptmp);
 
 	while (System::Update())
 	{
 		ClearPrint();
 
+		DrawBack(background, move, move2, move3);
+
 		UpdateAll(period, tMove, move, move2, move3, limit, score, die, velocity, gravity, jumptmp, jumpcount);
 
 		//プレイヤーの表示
 		Circle player{ playerPos.x, playerPos.y, 20 };
-
-		DrawAll(move, move2, move3, die, limit, gameclear, text, gameover, text2, background, scaffold, edge, player, explosion);
 
 		//敵の表示
 		//Vec2 player3{ player.x, player.y };  ←こいつのせいだった。確かにこれだと座標の真ん中にしか判定が出来なくなる。スッキリ
@@ -70,8 +77,11 @@ void Main()
 		{
 		case 0:
 
-			Pattern1(move2, move3, bottomO, bottomE, scaleE, player, die, tMove,
+			if (limit >= 0) {
+				Pattern1(move2, move3, bottomO, bottomE, scaleE, player, die, tMove,
 						 mob, skymob, velocity, gravity, jumptmp, jumpcount);
+			}
+
 			break;
 
 		case 1:
@@ -80,17 +90,35 @@ void Main()
 			break;
 		}
 
+		DrawAll(move, move2, move3, die, limit, gameclear, text, gameover, text2, scaffold, edge, player, explosion);
+
 	}
 }
 
-void InitAll() {
-	/*for (int i = 0; i < 2; i++) {
-		pattern[i] = rand() % 2;
-	}*/
+void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_die, double &_tMove, double &_limit,
+				double &_velocity, double &_gravity, int _pattern[], int _NUM, int &_period, int &_jumpcount, int &_jumptmp){
+
+	_move = 0.0;
+	_move2 = 800.0;
+	_move3 = 1600.0;
+	_score = 0;
+	_die = 0;
+	_tMove = 0.0;
+	_limit = 30.0;
+	_velocity = 0;
+	_gravity = 0;
+	_pattern[NUM];
+	_period = 0;
+	_jumpcount = 0;
+	_jumptmp = 0;
+
+	for (int i = 0; i < NUM; i++) {
+		_pattern[i] = 0/*rand() % 2*/;
+	}
 }
 
 void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, double &_move3,double &_limit, int &_score,/*, double _bottomO, double _bottomE, double _scaleE, Vec2 _player*/
-				int& _die, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount){
+				int &_die, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount){
 
 	
 	if (_period == 0) {
@@ -158,7 +186,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 
 	//急降下
 	if (KeyDown.down() && _velocity != 0) {
-		_gravity += 20.0f;
+		_gravity = 30.0f;
 	}
 
 	if (playerPos.y >= 480) {
@@ -172,13 +200,17 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 	}
 }
 
-void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text, Font gameover ,String text2,
-				Texture _background, RectF _scaffold, RectF _edge, Circle _player, Texture _explosion){
+void DrawBack(Texture _background, double _move, double _move2, double _move3){
 
 	//背景の表示
 	_background.draw(_move, 0);
 	_background.draw(_move2, 0);
 	_background.draw(_move3, 0);
+
+}
+
+void DrawAll(double _move, double _move2, double _move3, int _die, double _limit, Font gameclear, String text, Font gameover ,String text2,
+				RectF _scaffold, RectF _edge, Circle _player, Texture _explosion){
 
 	//30秒経過したらクリア
 	if (_limit <= 0) {
@@ -224,27 +256,21 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 {
 
 	Triangle enemyS{ _move2 + 300, _bottomE - 300, _scaleE };
-	//enemyS.draw(Palette::Red);
 	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 300);
 
 	Triangle enemyS2{ _move2 + 300, _bottomE - 200, _scaleE };
-	//enemyS2.draw(Palette::Red);
 	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 200);
 
 	Triangle enemy3{ _move2 + 500, _bottomE, _scaleE };
-	//enemy3.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move2 + 500, _bottomE);
 
 	Triangle enemy4{ _move2 + 600, _bottomE, _scaleE };
-	//enemy4.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move2 + 600, _bottomE);
 
 	Triangle enemy5{ _move3 + 300, _bottomE, _scaleE };
-	//enemy5.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move3 + 300, _bottomE);
 
 	Triangle enemy6{ _move3 + 500, _bottomE, _scaleE };
-	//enemy6.draw(Palette::Red);
 	_mob.scaled(0.3).drawAt(_move3 + 500 , _bottomE);
 
 	RectF object{ _move2, _bottomO, 1, 100 };
