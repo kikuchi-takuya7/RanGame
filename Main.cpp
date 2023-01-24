@@ -1,6 +1,6 @@
 ﻿# include <Siv3D.hpp> // OpenSiv3D v0.6.3
 
-#define NUM 4
+#define NUM 3
 
 Vec2 playerPos = { 200, 480 };//プレイヤーの位置
 
