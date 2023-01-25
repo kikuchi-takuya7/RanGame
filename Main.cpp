@@ -4,6 +4,7 @@
 
 Vec2 playerPos = { 200, 480 };//プレイヤーの位置
 
+//最初だけ呼び出すやつ
 void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_die, double &_tMove, double &_limit,
 				double &_velocity, double &_gravity, int _pattern[NUM], int &_period, int &_jumpcount, int &_jumptmp, int &_speadtmp);
 
@@ -25,6 +26,7 @@ void Reset(double& _velocity, double& _gravity, int& _jummptmp, int& _jumpcount)
 void CollisionO(double _tMove, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount,
 				Circle _player, RectF _object, RectF objectsub);
 
+//空中に浮いてる正方形オブジェの当たり判定。下からあたったときの挙動が少し磁石みたいだけど、修正する時間がないし特に問題なさそうだからいいや
 void CollisionOSky(double _tMove, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount,
 				Circle _player, RectF _object, RectF objectsub/*, RectF objectunder*/);
 
@@ -91,11 +93,13 @@ void Main()
 
 		UpdateAll(period, tMove, move, move2, move3, limit, score, die, velocity, gravity, jumptmp, jumpcount, speadUp, Up, speadtmp);
 
-		//プレイヤーの表示
+		//プレイヤーの宣言
 		Circle player{ playerPos.x, playerPos.y, 20 };
 
 		//敵の表示
 		//Vec2 player3{ player.x, player.y };  ←こいつのせいだった。確かにこれだと座標の真ん中にしか判定が出来なくなる。スッキリ
+
+		//randでいくつかのパターンの中からランダムで選ばれるようにしたかった
 		switch (pattern[period])
 		{
 		case 0:
@@ -149,7 +153,7 @@ void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_d
 	_jumptmp = 0;
 	_speadtmp = 0;
 
-	//ランダムなパターンを選出
+	//ランダムなパターンを選出したかったけど、randを使うとなぜか221の順番になってしまう
 	for (int i = 0; i < NUM; i++) {
 		_pattern[i] = i;
 	}
@@ -264,10 +268,13 @@ void DrawAll(double _move, double _move2, double _move3, int _die, double _limit
 		gameclear(text).draw(20, 200);
 	}
 
+	//足場
 	_scaffold.draw(Palette::Black);
 
+	//画面端
 	_edge.draw(Palette::Red);
 
+	//プレイヤーが死んだら表示しない
 	if (_die == 0) {
 		_player.draw(Palette::Black);
 	}
@@ -303,10 +310,11 @@ void CollisionO(double _tMove, double& _velocity, double& _gravity, int& _jumptm
 	if (_object.intersects(_player)) {
 		playerPos.x = playerPos.x - _tMove;
 	}
+	//プレイヤーのy座標＋重力＋半径でオブジェクトのy座標に当たるかどうか
 	if (_player.y + _gravity + 20 >= _objectsub.y && _player.x <= _objectsub.x + 90 && _player.x >= _objectsub.x && _objectsub.y + 100 >= playerPos.y) {
 		playerPos.y = _objectsub.y - 20;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
-	}
+	}//オブジェから離れたら
 	else if (_player.x >= _objectsub.x + 90) {
 		_jumptmp = 1;
 	}
@@ -330,6 +338,7 @@ void CollisionOSky(double _tMove, double& _velocity, double& _gravity, int& _jum
 		_jumptmp = 1;
 	}
 
+	//プレイやーのy座標-初速-半径がオブジェクトの一番下に当たるなら
 	if (_player.y - _velocity - 20 <= _objectsub.y + 100 && _player.x <= _objectsub.x + 90 && _player.x >= _objectsub.x &&
 			_objectsub.y <= playerPos.y) {
 		playerPos.y = _objectsub.y + 120;
