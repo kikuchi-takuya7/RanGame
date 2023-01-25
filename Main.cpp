@@ -1,13 +1,11 @@
 ﻿# include <Siv3D.hpp> // OpenSiv3D v0.6.3
 
-#define NUM 3
+#define NUM 4
 
 Vec2 playerPos = { 200, 480 };//プレイヤーの位置
 
-void Main();
-
 void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_die, double &_tMove, double &_limit,
-				double &_velocity, double &_gravity, int _pattern[], int _NUM, int &_period, int &_jumpcount, int &_jumptmp);
+				double &_velocity, double &_gravity, int _pattern[NUM], int &_period, int &_jumpcount, int &_jumptmp, int &_speadtmp);
 
 //ほぼすべての処理
 void UpdateAll(int &_period,double &_tMove,double &_move, double &_move2, double &_move3, double &_limit, int &_score,
@@ -27,18 +25,27 @@ void Reset(double& _velocity, double& _gravity, int& _jummptmp, int& _jumpcount)
 void CollisionO(double _tMove, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount,
 				Circle _player, RectF _object, RectF objectsub);
 
+void CollisionOSky(double _tMove, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount,
+				Circle _player, RectF _object, RectF objectsub/*, RectF objectunder*/);
+
 //敵の当たり判定
 void CollisionE(int &_die, Circle _player, Triangle _enemy);
 
 //敵が出てくるパターん
-void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int &_die,
+void Pattern0(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int &_die,
 				double _tMove, Texture _mob, Texture _skymob, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount);
+
+void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int& _die,
+				double _tMove, Texture _mob, Texture _skymob, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount);
+
+void Pattern1Draw(Texture _skymob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2,
+					RectF _object2sub, RectF _object3, RectF _object3sub, RectF _object9, RectF _object9sub);
 
 void Pattern2(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int& _die,
 				double _tMove, Texture _mob, Texture _skymob, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount);
 
-void Pattern2Draw(Texture _skymob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2,
-					RectF _object2sub, RectF _object3, RectF _object3sub, RectF _object9, RectF _object9sub);
+void Pattern2Draw(Texture _mob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2,
+					RectF _object2sub, RectF _object3, RectF _object3sub, RectF _object4, RectF _object4sub, RectF _object5, RectF _object5sub);
 
 void Main()
 {
@@ -72,9 +79,9 @@ void Main()
 	int period;//パターンの周期
 	int jumpcount;//ジャンプ回数
 	int jumptmp;//1ならジャンプの処理が続いて0なら処理しない・時間があれば関数にしたい
-	int speadtmp = 0;//スピードアップを表示させるためのやつ
+	int speadtmp;//スピードアップを表示させるためのやつ
 	
-	InitAll(move, move2, move3, score, die, tMove,limit, velocity, gravity, pattern, NUM, period, jumpcount, jumptmp);
+	InitAll(move, move2, move3, score, die, tMove,limit, velocity, gravity, pattern, period, jumpcount, jumptmp, speadtmp);
 
 	while (System::Update())
 	{
@@ -94,13 +101,22 @@ void Main()
 		case 0:
 
 			if (limit >= 0) {
-				Pattern1(move2, move3, bottomO, bottomE, scaleE, player, die, tMove,
+				Pattern0(move2, move3, bottomO, bottomE, scaleE, player, die, tMove,
 						 mob, skymob, velocity, gravity, jumptmp, jumpcount);
 			}
 
 			break;
 
 		case 1:
+
+			if (limit >= 0) {
+				Pattern1(move2, move3, bottomO, bottomE, scaleE, player, die, tMove,
+						 mob, skymob, velocity, gravity, jumptmp, jumpcount);
+			}
+
+			break;
+
+		case 2:
 
 			if (limit >= 0) {
 				Pattern2(move2, move3, bottomO, bottomE, scaleE, player, die, tMove,
@@ -116,7 +132,7 @@ void Main()
 }
 
 void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_die, double &_tMove, double &_limit,
-				double &_velocity, double &_gravity, int _pattern[], int _NUM, int &_period, int &_jumpcount, int &_jumptmp){
+				double &_velocity, double &_gravity, int _pattern[NUM], int &_period, int &_jumpcount, int &_jumptmp, int& _speadtmp){
 
 	_move = 0.0;
 	_move2 = 800.0;
@@ -131,10 +147,11 @@ void InitAll(double &_move, double &_move2, double &_move3, int &_score, int &_d
 	_period = 0;
 	_jumpcount = 0;
 	_jumptmp = 0;
+	_speadtmp = 0;
 
 	//ランダムなパターンを選出
 	for (int i = 0; i < NUM; i++) {
-		_pattern[i] = rand() % 2;
+		_pattern[i] = i;
 	}
 }
 
@@ -215,7 +232,7 @@ void UpdateAll(int &_period, double &_tMove,double &_move, double &_move2, doubl
 
 
 	//急降下
-	if (KeyDown.down() && _velocity != 0) {
+	if (KeyDown.down() && _jumptmp != 0) {
 		_gravity = 30.0f;
 	}
 
@@ -286,13 +303,44 @@ void CollisionO(double _tMove, double& _velocity, double& _gravity, int& _jumptm
 	if (_object.intersects(_player)) {
 		playerPos.x = playerPos.x - _tMove;
 	}
-	if (_player.y + _gravity + 20 >= _objectsub.y && _player.x <= _objectsub.x + 90 && _player.x >= _objectsub.x) {
-		playerPos.y = 380;
+	if (_player.y + _gravity + 20 >= _objectsub.y && _player.x <= _objectsub.x + 90 && _player.x >= _objectsub.x && _objectsub.y + 100 >= playerPos.y) {
+		playerPos.y = _objectsub.y - 20;
 		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 	else if (_player.x >= _objectsub.x + 90) {
 		_jumptmp = 1;
 	}
+}
+
+void CollisionOSky(double _tMove, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount,
+					Circle _player, RectF _object, RectF _objectsub/*, RectF _objectunder*/){
+
+	/*if (_objectunder.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}*/
+	if (_object.intersects(_player)) {
+		playerPos.x = playerPos.x - _tMove;
+	}
+	if (_player.y + _gravity + 20 >= _objectsub.y && _player.x <= _objectsub.x + 90 && _player.x >= _objectsub.x &&
+			_objectsub.y + 100 >= playerPos.y) {
+		playerPos.y = _objectsub.y - 20;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}
+	else if (_player.x >= _objectsub.x + 90) {
+		_jumptmp = 1;
+	}
+
+	if (_player.y - _velocity - 20 <= _objectsub.y + 100 && _player.x <= _objectsub.x + 90 && _player.x >= _objectsub.x &&
+			_objectsub.y <= playerPos.y) {
+		playerPos.y = _objectsub.y + 120;
+		_velocity = 0;
+		_gravity = 0;
+	}
+
+	/*if (_objectunder.intersects(_player)) {
+		playerPos.y = _objectsub.y + 100;
+		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
+	}*/
 }
 
 void CollisionE(int &_die, Circle _player, Triangle _enemy){
@@ -303,7 +351,7 @@ void CollisionE(int &_die, Circle _player, Triangle _enemy){
 }
 
 
-void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player,
+void Pattern0(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player,
 				int &_die, double _tMove, Texture _mob, Texture _skymob,
 				double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount)
 {
@@ -391,55 +439,18 @@ void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, do
 	/*オブジェクトに当たったら、押し戻される*/
 	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object, objectsub);
 	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object2, object2sub);
-
-	if (object3.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
-	}
-	if (playerPos.y + _gravity + 20 >= object3sub.y && playerPos.x <= object3sub.x + 90 && playerPos.x >= object3sub.x
-			&& object3sub.y + 45 >= playerPos.y) {
-		playerPos.y = 325;
-		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
-	}
-	else if (playerPos.x >= object3sub.x + 90) {
-		_jumptmp = 1;
-	}
-
-	if (object5.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
-	}
-	if (playerPos.y + _gravity + 20 >= object5sub.y && playerPos.x <= object5sub.x + 90 && playerPos.x >= object5sub.x
-			&& object5sub.y + 45 >= playerPos.y) {
-		playerPos.y = 225;
-		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
-	}
-	else if (playerPos.x >= object5sub.x + 90) {
-		_jumptmp = 1;
-	}
-
-	if (object6.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
-	}
-	if (playerPos.y + _gravity + 20 >= object6sub.y && playerPos.x <= object6sub.x + 90 && playerPos.x >= object6sub.x
-			&& object6sub.y + 45 >= playerPos.y) {
-		playerPos.y = 125;
-		Reset(_velocity, _gravity, _jumptmp, _jumpcount);
-	}
-	else if (playerPos.x >= object6sub.x + 90) {
-		_jumptmp = 1;
-	}
-
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object3, object3sub);
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object5, object5sub);
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object6, object6sub);
 	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object9, object9sub);
 
 	if (object10.intersects(_player)) {
-		playerPos.x = playerPos.x - _tMove;
-	}
-	if (object10.intersects(_player)) {
-		playerPos.y = playerPos.y + _tMove;
+		playerPos.y = playerPos.y + 100;
 			Reset(_velocity, _gravity, _jumptmp, _jumpcount);
 	}
 }
 
-void Pattern2(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player,int &_die, double _tMove,
+void Pattern1(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player,int &_die, double _tMove,
 				Texture _mob, Texture _skymob, double &_velocity, double &_gravity, int &_jumptmp, int &_jumpcount){
 
 	Triangle enemyS{ _move2 + 300, _bottomE - 300, _scaleE };
@@ -461,7 +472,7 @@ void Pattern2(double _move2, double _move3, double _bottomO, double _bottomE, do
 	//上の壁のオブジェクト
 	RectF object9sub{ _move3 + 701, _bottomO, 99, 100 };
 
-	Pattern2Draw(_skymob, _move2, _move3, _bottomE, object, objectsub, object2, object2sub, object3, object3sub, object9, object9sub);
+	Pattern1Draw(_skymob, _move2, _move3, _bottomE, object, objectsub, object2, object2sub, object3, object3sub, object9, object9sub);
 
 	//当たり判定
 	//敵に当たったら、画面が止まる
@@ -493,7 +504,7 @@ void Pattern2(double _move2, double _move3, double _bottomO, double _bottomE, do
 
 }
 
-void Pattern2Draw(Texture _skymob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2, RectF _object2sub, RectF _object3, RectF _object3sub, RectF _object9, RectF _object9sub){
+void Pattern1Draw(Texture _skymob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2, RectF _object2sub, RectF _object3, RectF _object3sub, RectF _object9, RectF _object9sub){
 
 	_skymob.scaled(0.2).drawAt(_move2 + 300, _bottomE - 300);//enemyS
 	_skymob.scaled(0.2).drawAt(_move3 + 750, _bottomE - 200);//enemyS2
@@ -506,8 +517,79 @@ void Pattern2Draw(Texture _skymob, double _move2, double _move3, double _bottomE
 	_objectsub.draw(Palette::Black);
 	_object2.draw(Palette::Black);
 	_object2sub.draw(Palette::Black);
-	_object3.draw(Palette::White);
+	_object3.draw(Palette::Black);
 	_object3sub.draw(Palette::Black);
 	_object9.draw(Palette::Black);
 	_object9sub.draw(Palette::Black);
+}
+
+void Pattern2(double _move2, double _move3, double _bottomO, double _bottomE, double _scaleE, Circle _player, int& _die,
+				double _tMove, Texture _mob, Texture _skymob, double& _velocity, double& _gravity, int& _jumptmp, int& _jumpcount){
+
+	Triangle enemyS{ _move2 + 200, _bottomE, _scaleE };
+	Triangle enemyS2{ _move2 + 300, _bottomE, _scaleE };
+	Triangle enemy3{ _move2 + 400, _bottomE, _scaleE };
+	Triangle enemy4{ _move2 + 500, _bottomE, _scaleE };
+	Triangle enemy5{ _move2 + 700, _bottomE, _scaleE };
+	Triangle enemy6{ _move3 + 200, _bottomE, _scaleE };
+	Triangle enemy7{ _move3 + 350, _bottomE, _scaleE };
+	Triangle enemy8{ _move3 + 550, _bottomE, _scaleE };
+	RectF object{ _move2, _bottomO, 1, 100 };
+	RectF objectsub{ _move2 + 1, _bottomO, 99, 100 };
+	RectF object2{ _move2 + 200, _bottomO - 150, 1, 100 };
+	//上の壁のオブジェクト
+	RectF object2sub{ _move2 + 201, _bottomO - 150, 99, 100 };
+	RectF object3{ _move2 + 400, _bottomO - 300, 1, 100 };
+	//上の壁のオブジェクト
+	RectF object3sub{ _move2 + 401, _bottomO - 300, 99, 100 };
+	RectF object4{ _move2 + 700, _bottomO - 200, 1, 100 };
+	//上の壁のオブジェクト
+	RectF object4sub{ _move2 + 701, _bottomO - 200, 99, 100 };
+	RectF object5{ _move3 + 300, _bottomO - 200, 1, 100 };
+	//上の壁のオブジェクト
+	RectF object5sub{ _move3 + 301, _bottomO - 200, 99, 100 };
+
+	Pattern2Draw(_mob, _move2, _move3, _bottomE, object, objectsub, object2, object2sub, object3, object3sub, object4, object4sub, object5, object5sub);
+
+	//当たり判定
+	//敵に当たったら、画面が止まる
+	CollisionE(_die, _player, enemyS);
+	CollisionE(_die, _player, enemyS2);
+	CollisionE(_die, _player, enemy3);
+	CollisionE(_die, _player, enemy4);
+	CollisionE(_die, _player, enemy5);
+	CollisionE(_die, _player, enemy6);
+	CollisionE(_die, _player, enemy7);
+	CollisionE(_die, _player, enemy8);
+
+	/*オブジェクトに当たったら、押し戻される*/
+	CollisionO(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object, objectsub);
+	CollisionOSky(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object2, object2sub);
+	CollisionOSky(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object3, object3sub);
+	CollisionOSky(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object4, object4sub);
+	CollisionOSky(_tMove, _velocity, _gravity, _jumptmp, _jumpcount, _player, object5, object5sub);
+
+}
+
+void Pattern2Draw(Texture _mob, double _move2, double _move3, double _bottomE, RectF _object, RectF _objectsub, RectF _object2, RectF _object2sub,
+					RectF _object3, RectF _object3sub, RectF _object4, RectF _object4sub, RectF _object5, RectF _object5sub){
+
+	_mob.scaled(0.3).drawAt(_move2 + 200, _bottomE);//enemyS
+	_mob.scaled(0.3).drawAt(_move2 + 300, _bottomE);//enemyS2
+	_mob.scaled(0.3).drawAt(_move2 + 400, _bottomE);//enemy3
+	_mob.scaled(0.3).drawAt(_move2 + 500, _bottomE);//enemy4
+	_mob.scaled(0.3).drawAt(_move2 + 700, _bottomE);//enemy5
+	_mob.scaled(0.3).drawAt(_move3 + 200, _bottomE);//enemy6
+	_mob.scaled(0.3).drawAt(_move3 + 350, _bottomE);//enemy7
+	_mob.scaled(0.3).drawAt(_move3 + 550, _bottomE);//enemy8
+	_object.draw(Palette::Black);
+	_objectsub.draw(Palette::Black);
+	_object2.draw(Palette::Black);
+	_object2sub.draw(Palette::Black);
+	_object3.draw(Palette::Black);
+	_object3sub.draw(Palette::Black);
+	_object4.draw(Palette::Black);
+	_object4sub.draw(Palette::Black);
+	_object5.draw(Palette::Black);
+	_object5sub.draw(Palette::Black);
 }
